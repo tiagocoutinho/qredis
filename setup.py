@@ -15,14 +15,15 @@ test_requirements = [
 
 setup(
     name='qredis',
-    version='0.0.1',
+    version='0.0.2',
     description="QRedis GUI",
     author="Tiago Coutinho",
     author_email='coutinhotiago@gmail.com',
     url='https://github.com/tiagocoutinho/qredis',
-    packages=['qredis', 'qredis.images',
+    packages=['qredis', 'qredis.images', 'qredis.ui',
               'qredis.tests'],
-    package_data={'qredis.images': ['*.png']},
+    package_data={'qredis.images': ['*.png'],
+                  'qredis.ui': ['*.ui'],},
     entry_points={
         'console_scripts': [
             'qredis=qredis.window:main'

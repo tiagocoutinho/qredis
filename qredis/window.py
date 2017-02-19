@@ -5,9 +5,8 @@ import collections
 
 import redis
 
-from .ui import ui_loadable
 from .qt import Qt, QMainWindow, QApplication, QDialog, QMdiSubWindow, QLabel, \
-                QTreeWidgetItem, QMessageBox, QIcon, QFont
+                QTreeWidgetItem, QMessageBox, QIcon, QFont, ui_loadable
 
 
 _this_dir = os.path.dirname(__file__)
