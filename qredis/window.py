@@ -59,13 +59,13 @@ class RedisItem(QTreeWidgetItem):
 
 class Item(QTreeWidgetItem):
 
+    MaxValueSize = 256
+    ValueContinue = ' [...]'
+
     def __init__(self, key, data, parent):
         super(Item, self).__init__(parent, [key] + 3*[''])
         self.setToolTip(0, 'Double click to update')
-        if 'key' in data:
-            icon = QIcon(_key_icon)
-        else:
-            icon = QIcon.fromTheme('folder')
+        icon = QIcon(_key_icon) if 'key' in data else QIcon.fromTheme('folder')
         self.setIcon(0, icon)
         self.setFont(3, QFont("Monospace"))
         self.__data = data
@@ -103,7 +103,11 @@ class Item(QTreeWidgetItem):
             self.parent().removeChild(self)
             return
         if value is not None:
-            self.setText(3, pprint.pformat(value))
+            text = pprint.pformat(value)
+            if len(text) > self.MaxValueSize:
+                text = text[:128-len(self.ValueContinue)] + self.ValueContinue
+            self.setText(3, text)
+
 
 @ui_loadable
 class RedisWindow(QMainWindow):
