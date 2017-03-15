@@ -1,6 +1,7 @@
 import os
 import re
 import pprint
+import logging
 import collections
 
 import redis
@@ -53,7 +54,7 @@ class RedisItem(QTreeWidgetItem):
         for key in sorted(self.redis.keys()):
             children = root_children
             for sub_key in self.SplitRE.split(key):
-                item = children.setdefault(sub_key, collections.OrderedDict(type='', children={}))
+                item = children.setdefault(sub_key, dict(type='', children=collections.OrderedDict()))
                 children = item['children']
             item['key'] = key
         fill_item(self, root_children)
@@ -116,6 +117,7 @@ class RedisWindow(QMainWindow):
         self.load_ui()
         self.setWindowIcon(QIcon(_redis_icon))
         ui = self.ui
+        ui.db_tree.header().resizeSection(0, 250)
         ui.about_dialog = AboutDialog()
         ui.quit_action.triggered.connect(QApplication.quit)
         ui.about_action.triggered.connect(lambda: ui.about_dialog.exec_())
@@ -126,11 +128,17 @@ class RedisWindow(QMainWindow):
     def __on_item_changed(self, current, previous):
         pass
 
+    def status_message(self, msg, timeout=0):
+        self.statusBar().showMessage(msg, int(timeout*1000.))
+
     def __on_update_item(self, item, column):
-        print 'update'
+        msg = 'updating %s' % item.text(0)
+        self.status_message('start %s' % msg)
         try:
             item.update()
+            self.status_message('finished %s' % msg, timeout=3)
         except redis.ConnectionError as ce:
+            self.status_message('error %s' % msg, timeout=3)
             QMessageBox.critical(self, "Connection Error", str(ce))
 
     def add(self, redis):
