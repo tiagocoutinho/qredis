@@ -156,12 +156,32 @@ class AboutDialog(QDialog):
 
 def main():
     import sys
-    #from bliss.config.conductor.client import get_cache
-    #r = get_cache()
-    import redis
-    r = redis.Redis()
+    import argparse
+
+    parser = argparse.ArgumentParser(description='QRedis GUI')
+    parser.add_argument('--host', help='Server host name')
+    parser.add_argument('-p', '--port', help='Server port', type=int)
+    parser.add_argument('-s', '--sock', help='Server socket')
+    parser.add_argument('-n', '--db', help='Database number')
+    parser.add_argument('--log-level', default='WARNING', help='log level',
+                        choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'])
+    args = parser.parse_args()
+
+    fmt = '%(asctime)-15s %(levelname)-5s %(name)s: %(message)s'
+    level = getattr(logging, args.log_level.upper())
+    logging.basicConfig(format=fmt, level=level)
+
+    kwargs = {}
+    if args.host is not None:
+        kargs['hostname'] = args.host
+    if args.port is not None:
+        kwargs['port'] = args.port
+    if args.sock is not None:
+        kwargs['unix_socket_path'] = args.sock
     application = QApplication(sys.argv)
     window = RedisWindow()
-    window.add(r)
+    if kwargs:
+        r = redis.Redis(**kwargs)
+        window.add(r)
     window.show()
     sys.exit(application.exec_())
