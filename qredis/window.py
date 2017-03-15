@@ -45,7 +45,7 @@ class RedisItem(QTreeWidgetItem):
     def __init__(self, redis, parent=None):
         super(RedisItem, self).__init__(parent, redis_strs(redis))
         self.setIcon(0, QIcon(_redis_icon))
-        self.setToolTip(0, 'Double click to update')
+        self.setToolTip(0, 'Click to update')
         self.redis = redis
 
     def update(self):
@@ -123,7 +123,8 @@ class RedisWindow(QMainWindow):
         ui.about_action.triggered.connect(lambda: ui.about_dialog.exec_())
         ui.db_tree.currentItemChanged.connect(self.__on_item_changed)
         #ui.db_tree.itemDoubleClicked.connect(self.__on_update_item)
-        ui.db_tree.itemActivated.connect(self.__on_update_item)
+        ui.db_tree.itemPressed.connect(self.__on_update_item)
+        #ui.db_tree.itemActivated.connect(self.__on_update_item)
 
     def __on_item_changed(self, current, previous):
         pass
