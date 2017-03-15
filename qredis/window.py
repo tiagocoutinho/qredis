@@ -28,14 +28,11 @@ def redis_strs(redis):
 
 #key, type, TTL, value
 
-def fill_item(item, data, max_expand_level=1, level=0):
+def fill_item(item, data):
     for key, value in data.items():
         child = Item(key, value, item)
         children = value['children']
-        fill_item(child, children, level=level+1)
-
-    if level < max_expand_level:
-        item.setExpanded(True)
+        fill_item(child, children)
 
 
 class RedisItem(QTreeWidgetItem):
@@ -58,7 +55,6 @@ class RedisItem(QTreeWidgetItem):
                 children = item['children']
             item['key'] = key
         fill_item(self, root_children)
-        self.setExpanded(True)
 
 
 class Item(QTreeWidgetItem):
@@ -108,7 +104,6 @@ class Item(QTreeWidgetItem):
             return
         if value is not None:
             self.setText(3, pprint.pformat(value))
-        self.setExpanded(True)
 
 @ui_loadable
 class RedisWindow(QMainWindow):
