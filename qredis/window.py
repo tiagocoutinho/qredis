@@ -60,6 +60,7 @@ class RedisItem(QTreeWidgetItem):
         fill_item(self, root_children)
         self.setExpanded(True)
 
+
 class Item(QTreeWidgetItem):
 
     def __init__(self, key, data, parent):
@@ -133,13 +134,9 @@ class RedisWindow(QMainWindow):
         self.statusBar().showMessage(msg, int(timeout*1000.))
 
     def __on_update_item(self, item, column):
-        msg = 'updating %s' % item.text(0)
-        self.status_message('start %s' % msg)
         try:
             item.update()
-            self.status_message('finished %s' % msg, timeout=3)
         except redis.ConnectionError as ce:
-            self.status_message('error %s' % msg, timeout=3)
             QMessageBox.critical(self, "Connection Error", str(ce))
 
     def add(self, redis):
