@@ -23,6 +23,9 @@
     </property>
     <item>
      <widget class="QTreeWidget" name="db_tree">
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
       <property name="alternatingRowColors">
        <bool>true</bool>
       </property>
