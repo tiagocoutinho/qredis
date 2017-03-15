@@ -170,7 +170,7 @@ def main():
 
     kwargs = {}
     if args.host is not None:
-        kargs['hostname'] = args.host
+        kwargs['host'] = args.host
     if args.port is not None:
         kwargs['port'] = args.port
     if args.sock is not None:
