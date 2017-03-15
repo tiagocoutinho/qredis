@@ -18,16 +18,7 @@
     <property name="spacing">
      <number>0</number>
     </property>
-    <property name="leftMargin">
-     <number>0</number>
-    </property>
-    <property name="topMargin">
-     <number>0</number>
-    </property>
-    <property name="rightMargin">
-     <number>0</number>
-    </property>
-    <property name="bottomMargin">
+    <property name="margin">
      <number>0</number>
     </property>
     <item>
@@ -39,7 +30,10 @@
        <enum>QAbstractItemView::ExtendedSelection</enum>
       </property>
       <attribute name="headerDefaultSectionSize">
-       <number>180</number>
+       <number>100</number>
+      </attribute>
+      <attribute name="headerMinimumSectionSize">
+       <number>60</number>
       </attribute>
       <column>
        <property name="text">
@@ -84,7 +78,7 @@
      <x>0</x>
      <y>0</y>
      <width>811</width>
-     <height>19</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -100,7 +94,8 @@
   <action name="connect_redis_server">
    <property name="icon">
     <iconset theme="folder-open">
-     <normaloff>.</normaloff>.</iconset>
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>&amp;Connect</string>
