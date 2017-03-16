@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>811</width>
-    <height>633</height>
+    <width>619</width>
+    <height>480</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,45 +21,6 @@
     <property name="margin">
      <number>0</number>
     </property>
-    <item>
-     <widget class="QTreeWidget" name="db_tree">
-      <property name="frameShape">
-       <enum>QFrame::NoFrame</enum>
-      </property>
-      <property name="alternatingRowColors">
-       <bool>true</bool>
-      </property>
-      <property name="selectionMode">
-       <enum>QAbstractItemView::ExtendedSelection</enum>
-      </property>
-      <attribute name="headerDefaultSectionSize">
-       <number>100</number>
-      </attribute>
-      <attribute name="headerMinimumSectionSize">
-       <number>60</number>
-      </attribute>
-      <column>
-       <property name="text">
-        <string>Key</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Type</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>TTL</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Value</string>
-       </property>
-      </column>
-     </widget>
-    </item>
    </layout>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -73,14 +34,15 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="connect_redis_server"/>
+   <addaction name="restart_action"/>
+   <addaction name="quit_action"/>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>811</width>
+     <width>619</width>
      <height>25</height>
     </rect>
    </property>
@@ -88,45 +50,50 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="connect_redis_server"/>
+    <addaction name="restart_action"/>
     <addaction name="separator"/>
     <addaction name="quit_action"/>
    </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="help_action"/>
+    <addaction name="separator"/>
+    <addaction name="about_action"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuHelp"/>
   </widget>
-  <action name="connect_redis_server">
+  <action name="help_action">
    <property name="icon">
-    <iconset theme="folder-open">
-     <normaloff/>
-    </iconset>
+    <iconset theme="help"/>
    </property>
    <property name="text">
-    <string>&amp;Connect</string>
+    <string>QRedis Help</string>
    </property>
    <property name="toolTip">
-    <string>Connect to Redis server</string>
+    <string>Displays QRedis help</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+C</string>
-   </property>
-  </action>
-  <action name="show_help_action">
-   <property name="text">
-    <string>Show Help</string>
-   </property>
-   <property name="toolTip">
-    <string>Displays help</string>
+    <string>Ctrl+?</string>
    </property>
   </action>
   <action name="about_action">
+   <property name="icon">
+    <iconset theme="help-about"/>
+   </property>
    <property name="text">
     <string>About...</string>
    </property>
    <property name="toolTip">
-    <string>About the Cuencos application</string>
+    <string>About the QRedis application</string>
    </property>
   </action>
   <action name="quit_action">
+   <property name="icon">
+    <iconset theme="application-exit"/>
+   </property>
    <property name="text">
     <string>Quit</string>
    </property>
@@ -135,6 +102,22 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="restart_action">
+   <property name="icon">
+    <iconset theme="system-reboot">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Restart</string>
+   </property>
+   <property name="toolTip">
+    <string>Restart application</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
    </property>
   </action>
  </widget>

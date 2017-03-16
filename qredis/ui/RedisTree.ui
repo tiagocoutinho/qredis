@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>main_window</class>
+ <widget class="QMainWindow" name="main_window">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>619</width>
+    <height>489</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Redis Tree</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <property name="margin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QTreeWidget" name="tree">
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::ExtendedSelection</enum>
+      </property>
+      <attribute name="headerDefaultSectionSize">
+       <number>100</number>
+      </attribute>
+      <attribute name="headerMinimumSectionSize">
+       <number>60</number>
+      </attribute>
+      <column>
+       <property name="text">
+        <string>Key</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Type</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>TTL</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Value</string>
+       </property>
+      </column>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QToolBar" name="key_toolbar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="update_key_action"/>
+   <addaction name="add_key_action"/>
+   <addaction name="remove_key_action"/>
+   <addaction name="persist_key_action"/>
+   <addaction name="touch_key_action"/>
+   <addaction name="copy_key_action"/>
+  </widget>
+  <widget class="QToolBar" name="db_toolbar">
+   <property name="windowTitle">
+    <string>Redis Tree</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="open_db_action"/>
+   <addaction name="close_db_action"/>
+   <addaction name="flush_db_action"/>
+   <addaction name="db_info_action"/>
+  </widget>
+  <action name="add_key_action">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="list-add"/>
+   </property>
+   <property name="text">
+    <string>Add key</string>
+   </property>
+   <property name="toolTip">
+    <string>Add a new key with a value</string>
+   </property>
+  </action>
+  <action name="remove_key_action">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="list-remove"/>
+   </property>
+   <property name="text">
+    <string>Remove key</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove the selected key(s)</string>
+   </property>
+  </action>
+  <action name="persist_key_action">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="media-playback-pause"/>
+   </property>
+   <property name="text">
+    <string>Persist</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove expiration from selected key(s)</string>
+   </property>
+  </action>
+  <action name="touch_key_action">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="go-jump">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Touch key</string>
+   </property>
+   <property name="toolTip">
+    <string>Alters last access time of selected key(s)</string>
+   </property>
+  </action>
+  <action name="flush_db_action">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="edit-clear"/>
+   </property>
+   <property name="text">
+    <string>Flush DB</string>
+   </property>
+   <property name="toolTip">
+    <string>Removes all keys from selected database(s)</string>
+   </property>
+  </action>
+  <action name="db_info_action">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="dialog-information"/>
+   </property>
+   <property name="text">
+    <string>DB Info</string>
+   </property>
+   <property name="toolTip">
+    <string>Shows redis server info</string>
+   </property>
+  </action>
+  <action name="copy_key_action">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="edit-copy"/>
+   </property>
+   <property name="text">
+    <string>Copy key</string>
+   </property>
+   <property name="toolTip">
+    <string>Copies selected key value into a new key</string>
+   </property>
+  </action>
+  <action name="update_key_action">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="view-refresh"/>
+   </property>
+   <property name="text">
+    <string>Update key</string>
+   </property>
+   <property name="toolTip">
+    <string>Updates the selected key(s) value, type and TTL</string>
+   </property>
+   <property name="statusTip">
+    <string>Update selected key(s) (F5)</string>
+   </property>
+  </action>
+  <action name="open_db_action">
+   <property name="icon">
+    <iconset theme="network-idle">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Open DB</string>
+   </property>
+   <property name="toolTip">
+    <string>Opens a new redis DB connection</string>
+   </property>
+  </action>
+  <action name="close_db_action">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="network-offline">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Close DB</string>
+   </property>
+   <property name="toolTip">
+    <string>Closes selected redis DB connection(s)</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
