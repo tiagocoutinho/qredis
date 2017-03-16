@@ -25,6 +25,8 @@ else:
     from PyQt5.QtWidgets import *
     from PyQt5.uic import *
 
+Signal = pyqtSignal
+
 import os
 import sys
 import functools

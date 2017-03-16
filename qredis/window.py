@@ -1,33 +1,15 @@
 import os
-import sys
 import logging
 
-from .qt import Qt, QMainWindow, QApplication, QDialog, QLabel, \
-                QTreeWidget, QTreeWidgetItem, QMessageBox, \
-                QIcon, QFont, QMenu, QAction, QSize, QPoint, QKeySequence, \
-                QRegExpValidator, QRegExp, \
-                ui_loadable
-from .tree import RedisTree
+from .qt import Qt, QMainWindow, QApplication, QIcon, QSplitter, ui_loadable
+from .panel import RedisPanel
 from .dialog import AboutDialog
-
+from .util import restart
 
 _this_dir = os.path.dirname(__file__)
 _res_dir = os.path.join(_this_dir, 'images')
 _redis_icon = os.path.join(_res_dir, 'redis_logo.png')
 
-_startup_cwd = os.getcwd()
-
-def restart():
-    if 'linux' in sys.platform.lower():
-        with open('/proc/{0}/cmdline'.format(os.getpid())) as f:
-            args = [arg for arg in f.read().split('\x00') if arg]
-            executable = args[0]
-    else:
-        args = sys.argv[:]
-        executable = sys.executable
-
-    os.chdir(_startup_cwd)
-    os.execvp(executable, args)
 
 @ui_loadable
 class RedisWindow(QMainWindow):
@@ -36,12 +18,10 @@ class RedisWindow(QMainWindow):
         super(RedisWindow, self).__init__(parent)
         self.load_ui()
         ui = self.ui
-        redis_icon = QIcon(_redis_icon)
-        self.setWindowIcon(redis_icon)
+        self.setWindowIcon(QIcon(_redis_icon))
         self.about_dialog = AboutDialog()
-        self.tree = RedisTree(self)
-        self.tree.setWindowFlags(Qt.Widget)
-        self.setCentralWidget(self.tree)
+        self.panel = RedisPanel(parent=self)
+        self.setCentralWidget(self.panel)
 
         ui.restart_action.triggered.connect(restart)
         ui.quit_action.triggered.connect(QApplication.quit)
@@ -50,8 +30,12 @@ class RedisWindow(QMainWindow):
     def status_message(self, msg, timeout=0):
         self.statusBar().showMessage(msg, int(timeout*1000.))
 
+    def add_redis(self, redis):
+        self.panel.add_redis(redis)
+
 
 def main():
+    import sys
     import argparse
 
     parser = argparse.ArgumentParser(description='QRedis GUI')
@@ -79,7 +63,7 @@ def main():
     if kwargs:
         import redis
         r = redis.Redis(**kwargs)
-        window.tree.add_redis(r)
+        window.add_redis(r)
     window.show()
     sys.exit(application.exec_())
 

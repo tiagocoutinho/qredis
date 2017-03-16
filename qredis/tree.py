@@ -1,5 +1,4 @@
 import os
-import re
 import sys
 import pprint
 import logging
@@ -8,38 +7,15 @@ import collections
 import redis
 
 from .qt import Qt, QMainWindow, QApplication, QTreeWidget, QTreeWidgetItem, \
-                QMessageBox, QIcon, QFont, QMenu, QSize, ui_loadable
+                QMessageBox, QIcon, QFont, QMenu, QSize, Signal, ui_loadable
 from .dialog import OpenRedisDialog
+from .util import redis_str, redis_key_split
+
 
 _this_dir = os.path.dirname(__file__)
 _res_dir = os.path.join(_this_dir, 'images')
 _redis_icon = os.path.join(_res_dir, 'redis_logo.png')
 _key_icon = os.path.join(_res_dir, 'key.png')
-
-
-def redis_strs(redis):
-    info = redis.connection_pool.connection_kwargs
-    if 'path' in info: # unix socket
-        addr = info['path']
-    elif 'host' in info:
-        addr = '{0}:{1}'.format(info['host'], info['port'])
-    else:
-        addr = '???'
-    return 'Redis({0})'.format(addr), 'db={0}'.format(info['db']), '', ''
-
-
-def redis_value(redis, key, dtype=None):
-    dtype = dtype or redis.type(key)
-    value = None
-    if dtype == 'string':
-        value = redis.get(key)
-    elif dtype == 'hash':
-        value = redis.hgetall(key)
-    elif dtype == 'list':
-        value = redis.lrange(key, 0, -1)
-    elif dtype == 'set':
-        value = redis.smembers(key)
-    return value
 
 
 def fill_item(item, data):
@@ -51,35 +27,48 @@ def fill_item(item, data):
 
 class RedisItem(QTreeWidgetItem):
 
-    SplitRE = re.compile("\:|\.")
+    SplitChars = '.:'
 
-    def __init__(self, redis, parent=None):
-        super(RedisItem, self).__init__(parent, redis_strs(redis))
+    def __init__(self, redis, filter=None, split_by=SplitChars, parent=None):
+        super(RedisItem, self).__init__(parent, [redis_str(redis)])
+        self.__filter = filter
+        self.__split = split_by
         self.setIcon(0, QIcon(_redis_icon))
-        self.setToolTip(0, 'Click to update')
         self.redis = redis
+
+    @property
+    def filter(self):
+        return self.__filter
+
+    @filter.setter
+    def filter(self, filter):
+        self.__filter = filter
+        self.update()
 
     def update(self):
         self.takeChildren()
         root_children = collections.OrderedDict()
-        for key in sorted(self.redis.keys()):
+        filt = self.filter or '*'
+        for key in sorted(self.redis.keys(filt)):
             children = root_children
-            for sub_key in self.SplitRE.split(key):
-                item = children.setdefault(sub_key, dict(type='', children=collections.OrderedDict()))
+            sub_key, sub_keys = '', redis_key_split(key, self.__split)
+            for i, name in enumerate(sub_keys):
+                sub_key += name
+                key_name = name[1:] if i else name
+                item = children.setdefault(key_name, dict(type='', children=collections.OrderedDict()))
                 children = item['children']
-            item['key'] = key
+                item['name'] = key_name
+                item['key'] = sub_key
+                item['has_value'] = False
+            item['has_value'] = True
         fill_item(self, root_children)
 
 
 class KeyItem(QTreeWidgetItem):
 
-    MaxValueSize = 256
-    ValueContinue = ' [...]'
-
     def __init__(self, key, data, parent):
-        super(KeyItem, self).__init__(parent, [key] + 3*[''])
-        self.setToolTip(0, 'Click to update')
-        icon = QIcon(_key_icon) if 'key' in data else QIcon.fromTheme('folder')
+        super(KeyItem, self).__init__(parent, [key])
+        icon = QIcon(_key_icon) if data['has_value'] else QIcon.fromTheme('folder')
         self.setIcon(0, icon)
         self.setFont(3, QFont("Monospace"))
         self.__data = data
@@ -96,42 +85,30 @@ class KeyItem(QTreeWidgetItem):
         return self.__data.get('key')
 
     @property
+    def has_value(self):
+        return self.__data.get('has_value', False)
+
+    @property
     def redis(self):
         return self.root_item.redis
-
-    def update(self):
-        redis, key = self.redis, self.key
-        if self.key is None:
-            return
-        dtype, ttl = redis.type(key), redis.ttl(key)
-        self.setText(1, dtype)
-        self.setText(2, str(ttl or ''))
-        if dtype == 'none':
-            self.parent().removeChild(self)
-            return
-        value = redis_value(redis, self.key, dtype=dtype)
-        text = pprint.pformat(value) if value else '???'
-        if len(text) > self.MaxValueSize:
-            text = text[:128-len(self.ValueContinue)] + self.ValueContinue
-        self.setText(3, text)
 
 
 @ui_loadable
 class RedisTree(QMainWindow):
 
-    Columns = 'Key', 'Type', 'TTL', 'Value'
-
-    DefaultSize = QSize(800, 600)
+    selectionChanged = Signal(object)
 
     def __init__(self, parent=None):
         super(RedisTree, self).__init__(parent)
         self.load_ui()
+        self.__selected_items = dict(all_items=[], key_items=[], db_items=[],
+                                     db_keys={})
         ui = self.ui
-        tree = self.ui.tree
-        header = tree.header()
-        header.resizeSection(0, 250)
-        tree.itemClicked.connect(self.__on_update_item)
-        tree.itemSelectionChanged.connect(self.__on_selection_changed)
+        header = ui.tree.header()
+        header.resizeSection(0, 220)
+#        ui.tree.itemClicked.connect(self.__on_update_item)
+        ui.tree.itemSelectionChanged.connect(self.__on_item_selection_changed)
+        self.selectionChanged.connect(self.__on_selection_changed)
         ui.add_key_action.triggered.connect(self.__on_add_key)
         ui.remove_key_action.triggered.connect(self.__on_remove_key)
         ui.touch_key_action.triggered.connect(self.__on_touch_key)
@@ -142,19 +119,30 @@ class RedisTree(QMainWindow):
     def contextMenuEvent(self, event):
         print 1
 
-    def get_selected_items(self):
+    @property
+    def selected_items(self):
+        return self.__selected_items
+
+    def __update_selected_items(self):
         items = self.ui.tree.selectedItems()
         key_items = [item for item in items if isinstance(item, KeyItem)]
         db_items = [item for item in items if isinstance(item, RedisItem)]
         db_keys = collections.defaultdict(list)
         for key_item in key_items:
             db_keys[key_item.redis].append(key_item.key)
-        return dict(all_items=items, key_items=key_items, db_items=db_items,
-                    db_keys=db_keys)
+        si = self.__selected_items
+        si['all_items'] = items
+        si['key_items'] = key_items
+        si['db_items'] = db_items
+        si['db_keys'] = db_keys
+        return si
 
-    def __on_selection_changed(self):
+    def __on_item_selection_changed(self):
+        selected = self.__update_selected_items()
+        self.selectionChanged.emit(selected)
+
+    def __on_selection_changed(self, selected):
         ui = self.ui
-        selected = self.get_selected_items()
         all_items = selected['all_items']
         key_items = selected['key_items']
         db_items = selected['db_items']
@@ -170,7 +158,6 @@ class RedisTree(QMainWindow):
         ui.close_db_action.setEnabled(n_dbs > 0)
         ui.db_info_action.setEnabled(n_dbs == 1)
         ui.db_info_action.setEnabled(n_dbs == 1)
-
         #self.swap_db_action.setEnabled(not n_keys and n_dbs == 2)
 
     def __on_open_db(self):
@@ -185,16 +172,15 @@ class RedisTree(QMainWindow):
         pass
 
     def __on_touch_key(self):
-        selected = self.get_selected_items()
+        selected = self.selected_items
         db_items = selected['db_items']
 
     def __on_add_key(self):
         item = self.ui.tree.selectedItems()[0]
         redis, key = item.redis, item.key
-        print redis, key
 
     def __on_remove_key(self):
-        selected = self.get_selected_items()
+        selected = self.elected_items
         key_items, db_keys = selected['key_items'], selected['db_keys']
         for db, keys in db_keys.items():
             db.delete(*keys)
@@ -206,12 +192,6 @@ class RedisTree(QMainWindow):
             item.update()
         except redis.ConnectionError as ce:
             QMessageBox.critical(self, "Connection Error", str(ce))
-
-    def sizeHint(self):
-        return self.DefaultSize
-
-    def minimumSizeHint(self):
-        return self.DefaultSize
 
     def add_redis(self, db):
         item = RedisItem(db)

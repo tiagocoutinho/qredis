@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>619</width>
+    <width>451</width>
     <height>489</height>
    </rect>
   </property>
@@ -32,32 +32,9 @@
       <property name="selectionMode">
        <enum>QAbstractItemView::ExtendedSelection</enum>
       </property>
-      <attribute name="headerDefaultSectionSize">
-       <number>100</number>
+      <attribute name="headerVisible">
+       <bool>false</bool>
       </attribute>
-      <attribute name="headerMinimumSectionSize">
-       <number>60</number>
-      </attribute>
-      <column>
-       <property name="text">
-        <string>Key</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Type</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>TTL</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Value</string>
-       </property>
-      </column>
      </widget>
     </item>
    </layout>
@@ -99,7 +76,9 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme="list-add"/>
+    <iconset theme="list-add">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>Add key</string>
@@ -113,7 +92,9 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme="list-remove"/>
+    <iconset theme="list-remove">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>Remove key</string>
@@ -127,7 +108,9 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme="media-playback-pause"/>
+    <iconset theme="media-playback-pause">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>Persist</string>
@@ -157,7 +140,9 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme="edit-clear"/>
+    <iconset theme="edit-clear">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>Flush DB</string>
@@ -171,7 +156,9 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme="dialog-information"/>
+    <iconset theme="dialog-information">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>DB Info</string>
@@ -185,7 +172,9 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme="edit-copy"/>
+    <iconset theme="edit-copy">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>Copy key</string>
@@ -199,7 +188,9 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme="view-refresh"/>
+    <iconset theme="view-refresh">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>Update key</string>
