@@ -1,4 +1,12 @@
+import os
+import sys
 from setuptools import setup
+
+# make sure we use qredis from the source
+_this_dir = os.path.dirname(__file__)
+sys.path.insert(0, _this_dir)
+
+import qredis
 
 requirements = [
     'redis',
@@ -15,7 +23,7 @@ test_requirements = [
 
 setup(
     name='qredis',
-    version='0.0.2',
+    version=qredis.__version__,
     description="QRedis GUI",
     author="Tiago Coutinho",
     author_email='coutinhotiago@gmail.com',
