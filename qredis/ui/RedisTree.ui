@@ -35,6 +35,11 @@
       <attribute name="headerVisible">
        <bool>false</bool>
       </attribute>
+      <column>
+       <property name="text">
+        <string notr="true">1</string>
+       </property>
+      </column>
      </widget>
     </item>
    </layout>
@@ -108,7 +113,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme="media-playback-pause">
+    <iconset theme="go-bottom">
      <normaloff/>
     </iconset>
    </property>

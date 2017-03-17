@@ -19,10 +19,13 @@ _key_icon = os.path.join(_res_dir, 'key.png')
 
 
 def fill_item(item, data):
+    result = {}
     for key, value in data.items():
         child = KeyItem(key, value, item)
         children = value['children']
-        fill_item(child, children)
+        result[value['key']] = child
+        result.update(fill_item(child, children))
+    return result
 
 
 class RedisItem(QTreeWidgetItem):
@@ -33,6 +36,7 @@ class RedisItem(QTreeWidgetItem):
         super(RedisItem, self).__init__(parent, [redis_str(redis)])
         self.__filter = filter
         self.__split = split_by
+        self.key_items = {}
         self.setIcon(0, QIcon(_redis_icon))
         self.redis = redis
 
@@ -61,7 +65,19 @@ class RedisItem(QTreeWidgetItem):
                 item['key'] = sub_key
                 item['has_value'] = False
             item['has_value'] = True
-        fill_item(self, root_children)
+        self.key_items = fill_item(self, root_children)
+
+    def rename_key(self, old_key, new_key):
+        old_sub_keys = redis_key_split(old_key, self.__split)
+        new_sub_keys = redis_key_split(new_key, self.__split)
+        parent_changed = old_sub_keys[:-1] != new_sub_keys[:-1]
+        item = self.key_items.pop(old_key)
+        if parent_changed:
+            print 'TODO'
+        else:
+            label = new_sub_keys[-1][1:] if len(new_sub_keys) > 1 else new_sub_keys[-1]
+            self.key_items[new_key] = item
+            item.rename(new_key, label)
 
 
 class KeyItem(QTreeWidgetItem):
@@ -79,6 +95,10 @@ class KeyItem(QTreeWidgetItem):
         while root.parent():
             root = root.parent()
         return root
+
+    def rename(self, key, label):
+        self.__data['key'] = key
+        self.setText(0, label)
 
     @property
     def key(self):
@@ -118,6 +138,16 @@ class RedisTree(QMainWindow):
 
     def contextMenuEvent(self, event):
         print 1
+
+    def rename_key(self, old, new):
+        tree = self.ui.tree
+        for i in range(tree.topLevelItemCount()):
+            redis_item = tree.topLevelItem(i)
+            if redis_item.redis == old.redis:
+                redis_item.rename_key(old.key, new.key)
+                break
+        else:
+            print 'warning could not find redis db to rename key in tree'
 
     @property
     def selected_items(self):

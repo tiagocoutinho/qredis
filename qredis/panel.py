@@ -11,7 +11,10 @@ class RedisPanel(QSplitter):
         self.tree.setWindowFlags(Qt.Widget)
         self.addWidget(self.tree)
         self.addWidget(self.editor)
+        self.setStretchFactor(0, 2)
+        self.setStretchFactor(1, 3)
         self.tree.selectionChanged.connect(self.__on_selection_changed)
+        self.editor.keyNameChanged.connect(self.tree.rename_key)
 
     def __on_selection_changed(self, selected):
         all_items = selected['all_items']

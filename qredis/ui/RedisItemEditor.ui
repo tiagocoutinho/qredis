@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>233</height>
+    <width>315</width>
+    <height>205</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Key Editor</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
+  <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,1,0" columnstretch="0,1,0,0">
    <property name="margin">
     <number>0</number>
    </property>
@@ -27,7 +27,14 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
+   <item row="0" column="0">
+    <widget class="QLabel" name="key_label">
+     <property name="text">
+      <string>Key:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" colspan="2">
     <widget class="QSpinBox" name="ttl_value">
      <property name="specialValueText">
       <string>-----</string>
@@ -43,17 +50,29 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
-    <widget class="QLineEdit" name="key_value"/>
-   </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="key_label">
+   <item row="1" column="3">
+    <widget class="QToolButton" name="apply_ttl_button">
+     <property name="toolTip">
+      <string>Apply all changes</string>
+     </property>
      <property name="text">
-      <string>Key:</string>
+      <string>Apply</string>
+     </property>
+     <property name="icon">
+      <iconset theme="document-save"/>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>16</width>
+       <height>16</height>
+      </size>
      </property>
     </widget>
    </item>
-   <item row="2" column="0" colspan="3">
+   <item row="2" column="0" colspan="4">
+    <widget class="QWidget" name="type_editor" native="true"/>
+   </item>
+   <item row="3" column="0" colspan="4">
     <widget class="QWidget" name="widget" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout">
       <property name="spacing">
@@ -62,6 +81,19 @@
       <property name="margin">
        <number>0</number>
       </property>
+      <item>
+       <widget class="QToolButton" name="delete_button">
+        <property name="statusTip">
+         <string>Delete key from database</string>
+        </property>
+        <property name="text">
+         <string>Delete</string>
+        </property>
+        <property name="icon">
+         <iconset theme="edit-delete"/>
+        </property>
+       </widget>
+      </item>
       <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
@@ -76,45 +108,50 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="rename_button">
-        <property name="text">
-         <string>Rename</string>
+       <widget class="QToolButton" name="touch_button">
+        <property name="toolTip">
+         <string>Alters the last access time of the key</string>
         </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="persist_button">
-        <property name="text">
-         <string>Persist</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButton">
         <property name="text">
          <string>Touch</string>
         </property>
+        <property name="icon">
+         <iconset theme="go-down"/>
+        </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_2">
+       <widget class="QToolButton" name="persist_button">
+        <property name="toolTip">
+         <string>Remove expiration from key</string>
+        </property>
         <property name="text">
-         <string>Delete</string>
+         <string>Persist</string>
+        </property>
+        <property name="icon">
+         <iconset theme="go-bottom"/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="refresh_button">
+        <property name="toolTip">
+         <string>Refresh key data (value, ttl)</string>
+        </property>
+        <property name="text">
+         <string>Touch</string>
+        </property>
+        <property name="icon">
+         <iconset theme="view-refresh">
+          <normaloff>../../</normaloff>../../</iconset>
         </property>
        </widget>
       </item>
      </layout>
     </widget>
    </item>
-   <item row="3" column="0" colspan="3">
-    <widget class="QFrame" name="type_editor">
-     <property name="frameShape">
-      <enum>QFrame::Box</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Plain</enum>
-     </property>
-    </widget>
+   <item row="0" column="1" colspan="3">
+    <widget class="QLineEdit" name="key_name"/>
    </item>
   </layout>
  </widget>

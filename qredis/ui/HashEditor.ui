@@ -43,6 +43,12 @@
    <item>
     <widget class="QWidget" name="widget" native="true">
      <layout class="QVBoxLayout" name="verticalLayout">
+      <property name="spacing">
+       <number>3</number>
+      </property>
+      <property name="margin">
+       <number>0</number>
+      </property>
       <item>
        <widget class="QToolButton" name="add_button">
         <property name="enabled">
