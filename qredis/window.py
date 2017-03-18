@@ -5,7 +5,8 @@ from .qt import QMainWindow, QApplication, QIcon, ui_loadable
 from .util import restart
 from .redis import QRedis
 from .panel import RedisPanel
-from .dialog import AboutDialog
+from .dialog import AboutDialog, OpenRedisDialog
+
 
 _redis_icon = os.path.join(os.path.dirname(__file__), 'images', 'redis_logo.png')
 
@@ -17,20 +18,26 @@ class RedisWindow(QMainWindow):
         super(RedisWindow, self).__init__(parent)
         self.load_ui()
         ui = self.ui
-        self.setWindowIcon(QIcon(_redis_icon))
+        redis_icon = QIcon(_redis_icon)
+        self.setWindowIcon(redis_icon)
         self.about_dialog = AboutDialog()
-        self.panel = RedisPanel(parent=self)
-        self.setCentralWidget(self.panel)
 
+        ui.open_db_action.setIcon(redis_icon)
+        ui.open_db_action.triggered.connect(self.__on_open_db)
         ui.restart_action.triggered.connect(restart)
         ui.quit_action.triggered.connect(QApplication.quit)
         ui.about_action.triggered.connect(lambda: self.about_dialog.exec_())
 
-    def status_message(self, msg, timeout=0):
-        self.statusBar().showMessage(msg, int(timeout*1000.))
+    def __on_open_db(self):
+        redis = OpenRedisDialog.create_redis()
+        if redis:
+            self.add_redis_panel(redis)
 
-    def add_redis(self, redis):
-        self.panel.add_redis(redis)
+    def add_redis_panel(self, *redis):
+        panel = RedisPanel(parent=self)
+        for r in redis:
+            panel.add_redis(r)
+        return self.ui.mdi.addSubWindow(panel)
 
 
 def main():
@@ -61,7 +68,7 @@ def main():
     window = RedisWindow()
     if kwargs:
         r = QRedis(**kwargs)
-        window.add_redis(r)
+        window.add_redis_panel(r).showMaximized()
     window.show()
     sys.exit(application.exec_())
 

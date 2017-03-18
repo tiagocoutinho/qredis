@@ -1,6 +1,5 @@
 import os
 import sys
-import pprint
 import logging
 import collections
 
@@ -132,6 +131,7 @@ class RedisTree(QMainWindow):
         ui = self.ui
         header = ui.tree.header()
         header.resizeSection(0, 220)
+        ui.open_db_action.setIcon(QIcon(_redis_icon))
         ui.tree.itemSelectionChanged.connect(self.__on_item_selection_changed)
         self.selectionChanged.connect(self.__on_selection_changed)
         ui.add_key_action.triggered.connect(self.__on_add_key)

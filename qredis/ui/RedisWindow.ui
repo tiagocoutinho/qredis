@@ -21,9 +21,11 @@
     <property name="margin">
      <number>0</number>
     </property>
+    <item>
+     <widget class="QMdiArea" name="mdi"/>
+    </item>
    </layout>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolbar">
    <property name="windowTitle">
     <string>toolBar</string>
@@ -34,6 +36,8 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="open_db_action"/>
+   <addaction name="separator"/>
    <addaction name="restart_action"/>
    <addaction name="quit_action"/>
   </widget>
@@ -124,6 +128,22 @@
    </property>
    <property name="shortcut">
     <string>Alt+Shift+R</string>
+   </property>
+  </action>
+  <action name="open_db_action">
+   <property name="icon">
+    <iconset theme="network-idle">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Open DB</string>
+   </property>
+   <property name="toolTip">
+    <string>Opens a new redis DB connection in a new sub-window</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
    </property>
   </action>
  </widget>
