@@ -39,6 +39,7 @@ class RedisItem(QTreeWidgetItem):
         self.setIcon(0, QIcon(_redis_icon))
         self.redis = redis
         redis.keyRenamed.connect(self.__on_key_renamed)
+        redis.keyDeleted.connect(self.__on_key_deleted)
 
     @property
     def filter(self):
@@ -79,6 +80,10 @@ class RedisItem(QTreeWidgetItem):
             label = new_sub_keys[-1][1:] if len(new_sub_keys) > 1 else new_sub_keys[-1]
             self.key_items[new_key] = item
             item.rename(new_key, label)
+
+    def __on_key_deleted(self, item):
+        key_item = self.key_items[item.key]
+        key_item.parent().removeChild(key_item)
 
 
 class KeyItem(QTreeWidgetItem):
@@ -135,6 +140,7 @@ class RedisTree(QMainWindow):
 
         ui.open_db_action.triggered.connect(self.__on_open_db)
         ui.close_db_action.triggered.connect(self.__on_close_db)
+        ui.update_db_action.triggered.connect(self.__on_update_db)
         ui.flush_db_action.triggered.connect(self.__on_flush_db)
 
     def contextMenuEvent(self, event):
@@ -174,11 +180,8 @@ class RedisTree(QMainWindow):
         ui.touch_key_action.setEnabled(n_keys > 0)
         ui.copy_key_action.setEnabled(n_keys > 0)
         ui.flush_db_action.setEnabled(not n_keys and n_dbs)
-
+        ui.update_db_action.setEnabled(n_dbs > 0)
         ui.close_db_action.setEnabled(n_dbs > 0)
-        ui.db_info_action.setEnabled(n_dbs == 1)
-        ui.db_info_action.setEnabled(n_dbs == 1)
-        #self.swap_db_action.setEnabled(not n_keys and n_dbs == 2)
 
     def __on_open_db(self):
         redis = OpenRedisDialog.create_redis()
@@ -191,6 +194,10 @@ class RedisTree(QMainWindow):
     def __on_flush_db(self):
         pass
 
+    def __on_update_db(self):
+        for db_item in self.selected_items['db_items']:
+            db_item.update()
+
     def __on_swap_db(self):
         pass
 
@@ -200,7 +207,7 @@ class RedisTree(QMainWindow):
 
     def __on_add_key(self):
         item = self.ui.tree.selectedItems()[0]
-        redis, key = item.redis, item.key
+        redis, key = item.redis
 
     def __on_remove_key(self):
         selected = self.selected_items

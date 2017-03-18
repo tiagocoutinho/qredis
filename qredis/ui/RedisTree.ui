@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>451</width>
-    <height>347</height>
+    <width>300</width>
+    <height>247</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -44,26 +44,18 @@
     </item>
    </layout>
   </widget>
-  <widget class="QToolBar" name="key_toolbar">
-   <property name="windowTitle">
-    <string>toolBar</string>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-   <addaction name="update_action"/>
-   <addaction name="add_key_action"/>
-   <addaction name="remove_key_action"/>
-   <addaction name="touch_key_action"/>
-   <addaction name="persist_key_action"/>
-   <addaction name="copy_key_action"/>
-  </widget>
   <widget class="QToolBar" name="db_toolbar">
    <property name="windowTitle">
     <string>Redis Tree</string>
+   </property>
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>16</width>
+     <height>16</height>
+    </size>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
@@ -74,7 +66,13 @@
    <addaction name="open_db_action"/>
    <addaction name="close_db_action"/>
    <addaction name="flush_db_action"/>
-   <addaction name="db_info_action"/>
+   <addaction name="update_db_action"/>
+   <addaction name="separator"/>
+   <addaction name="add_key_action"/>
+   <addaction name="remove_key_action"/>
+   <addaction name="touch_key_action"/>
+   <addaction name="persist_key_action"/>
+   <addaction name="copy_key_action"/>
   </widget>
   <action name="add_key_action">
    <property name="enabled">
@@ -154,22 +152,6 @@
     <string>Removes all keys from selected database(s)</string>
    </property>
   </action>
-  <action name="db_info_action">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset theme="dialog-information">
-     <normaloff/>
-    </iconset>
-   </property>
-   <property name="text">
-    <string>DB Info</string>
-   </property>
-   <property name="toolTip">
-    <string>Shows redis server info</string>
-   </property>
-  </action>
   <action name="copy_key_action">
    <property name="enabled">
     <bool>false</bool>
@@ -186,7 +168,7 @@
     <string>Copies selected key value into a new key</string>
    </property>
   </action>
-  <action name="update_action">
+  <action name="update_db_action">
    <property name="enabled">
     <bool>false</bool>
    </property>

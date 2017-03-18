@@ -1,9 +1,10 @@
+from datetime import timedelta
 from functools import partial
 from collections import namedtuple
 
 from .util import redis_str
 from .qt import QWidget, QStackedLayout, QTableWidgetItem, QDialogButtonBox, \
-                Signal, ui_loadable
+                QIntValidator, Signal, ui_loadable
 
 Item = namedtuple('Item', 'redis key type ttl value')
 
@@ -149,28 +150,22 @@ class RedisItemEditor(QWidget):
             'set': self.set_editor,
         }
         ui.key_name.textChanged.connect(self.__on_key_name_changed)
-        ui.key_name.editingFinished.connect(self.__on_key_name_applyed)
-        ui.ttl_value.valueChanged.connect(self.__on_ttl_changed)
-        ui.apply_ttl_button.clicked.connect(self.__on_apply_ttl)
+        ui.key_name.editingFinished.connect(self.__on_key_name_applied)
+        ttl_validator = QIntValidator()
+        ttl_validator.setBottom(-1)
+        ui.ttl_value.setValidator(ttl_validator)
+        ui.ttl_value.textChanged.connect(self.__on_ttl_changed)
+        ui.ttl_value.editingFinished.connect(self.__on_ttl_applied)
         ui.refresh_button.clicked.connect(self.__on_refresh)
         ui.persist_button.clicked.connect(self.__on_persist)
         ui.delete_button.clicked.connect(self.__on_delete)
 
-    def __on_apply_ttl(self):
-        if self.ttl_modified:
-            item, original_item = self.__item, self.__original_item
-            try:
-                item.redis.expire(item.key, item.ttl)
-                self.__original_item = original_item._replace(ttl=item.ttl)
-            except Exception as e:
-                print 'error', str(e)
-            self.__update()
 
     def __on_key_name_changed(self, key):
         self.__item = self.__item._replace(key=key)
         self.__update()
 
-    def __on_key_name_applyed(self):
+    def __on_key_name_applied(self):
         if self.name_modified:
             item, original_item = self.__item, self.__original_item
             try:
@@ -181,8 +176,19 @@ class RedisItemEditor(QWidget):
             self.__update()
 
     def __on_ttl_changed(self, ttl):
+        ttl = int(ttl) if ttl else -1
         self.__item = self.__item._replace(ttl=ttl)
         self.__update()
+
+    def __on_ttl_applied(self):
+        if self.ttl_modified:
+            item, original_item = self.__item, self.__original_item
+            try:
+                item.redis.expire(item.key, item.ttl)
+                self.__original_item = original_item._replace(ttl=item.ttl)
+            except Exception as e:
+                print 'error', str(e)
+            self.__update()
 
     def __on_refresh(self):
         self.set_item(self.__item.redis, self.__item.key)
@@ -212,7 +218,12 @@ class RedisItemEditor(QWidget):
         name_modified, ttl_modified = self.name_modified, self.ttl_modified
         ui.key_name.setStyleSheet(ModifiedStyle if name_modified else '')
         ui.ttl_value.setStyleSheet(ModifiedStyle if ttl_modified else '')
-        ui.apply_ttl_button.setEnabled(ttl_modified)
+        if ttl_modified:
+            ttl = self.__item.ttl
+            ttl_str = 'Persistent'
+            if ttl > 0:
+                ttl_str = 'TTL: {0}'.format(timedelta(seconds=ttl))
+            ui.ttl_value.setToolTip(ttl_str)
 
     def set_item(self, redis, key):
         item = redis.get(key)
@@ -226,7 +237,7 @@ class RedisItemEditor(QWidget):
         self.__original_item = self.__item = item
         self.ui.type_editor.layout().setCurrentWidget(editor)
         self.ui.key_name.setText(key)
-        self.ui.ttl_value.setValue(ttl)
+        self.ui.ttl_value.setText(str(ttl) if ttl > 0 else '')
 
 
 @ui_loadable

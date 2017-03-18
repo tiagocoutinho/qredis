@@ -11,8 +11,8 @@ class RedisPanel(QSplitter):
         self.tree.setWindowFlags(Qt.Widget)
         self.addWidget(self.tree)
         self.addWidget(self.editor)
-        self.setStretchFactor(0, 2)
-        self.setStretchFactor(1, 4)
+        self.setStretchFactor(0, 1)
+        self.setStretchFactor(1, 1)
         self.tree.selectionChanged.connect(self.__on_selection_changed)
 
     def __on_selection_changed(self, selected):
