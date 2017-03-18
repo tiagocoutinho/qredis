@@ -10,54 +10,89 @@ Item = namedtuple('Item', 'redis key type ttl value')
 
 ModifiedStyle = 'background-color: rgb(255,200,200);'
 
-
 @ui_loadable
-class HashEditor(QWidget):
+class MultiEditor(QWidget):
 
     def __init__(self, parent=None):
-        super(HashEditor, self).__init__(parent)
+        super(MultiEditor, self).__init__(parent)
         self.load_ui()
+        self.modified = False
+        self.ui.table.itemSelectionChanged.connect(self.update_ui)
+        self.ui.table.itemChanged.connect(self.item_changed)
+        self.ui.add_button.clicked.connect(self.add_item)
+        self.ui.delete_button.clicked.connect(self.delete_selection)
+        self.ui.revert_button.clicked.connect(self.revert_changes)
+        self.ui.apply_button.clicked.connect(self.apply_changes)
+
+    def item_changed(self, item):
+        self.modified = True
+        self.update_ui()
+
+    def revert_changes(self):
+        self.set_item(self.__item)
+
+    def apply_changes(self):
+        table, item = self.ui.table, self.__item
+        if item.type == 'hash':
+            value = {}
+            for row in range(table.rowCount()):
+                value[table.item(row, 0).text()] = table.item(row, 1).text()
+        else:
+            value = [table.item(row, 0).text() for row in range(table.rowCount())]
+            value = value if item.type == 'list' else set(value)
+        item.redis[item.key] = value
+        self.__item = item._replace(value=value)
+        self.modified = False
+        self.update_ui()
 
     def set_item(self, item):
-        self.item = item
+        self.__item = item
         table = self.ui.table
         table.clearContents()
-        table.setRowCount(len(item.value))
-        for row, key in enumerate(sorted(item.value)):
+        dtype, value = item.type, item.value
+        table.setRowCount(len(value))
+        header = ('Key', 'Value') if dtype == 'hash' else ('Value',)
+        table.setColumnCount(len(header))
+        table.setHorizontalHeaderLabels(header)
+        keys = value if dtype == 'list' else sorted(value)
+        for row, key in enumerate(keys):
             table.setItem(row, 0, QTableWidgetItem(key))
-            table.setItem(row, 1, QTableWidgetItem(item.value[key]))
+        if item.type == 'hash':
+            for row, key in enumerate(keys):
+                table.setItem(row, 1, QTableWidgetItem(value[key]))
+        self.modified = False
+        self.update_ui()
 
-
-@ui_loadable
-class ListEditor(QWidget):
-
-    def __init__(self, parent=None):
-        super(ListEditor, self).__init__(parent)
-        self.load_ui()
-
-    def set_item(self, item):
-        self.item = item
+    def add_item(self):
         table = self.ui.table
-        table.clearContents()
-        table.setRowCount(len(item.value))
-        for row, value in enumerate(sorted(item.value)):
-            table.setItem(row, 0, QTableWidgetItem(value))
+        items = table.selectedIndexes()
+        if items:
+            row = max([item.row() for item in items])
+        else:
+            row = table.rowCount()
+        table.insertRow(row)
+        key_item = QTableWidgetItem()
+        table.setItem(row, 0, key_item)
+        table.editItem(key_item)
+        self.modified = True
+        self.update_ui()
 
-
-@ui_loadable
-class SetEditor(QWidget):
-
-    def __init__(self, parent=None):
-        super(SetEditor, self).__init__(parent)
-        self.load_ui()
-
-    def set_item(self, item):
-        self.item = item
+    def delete_selection(self):
         table = self.ui.table
-        table.clearContents()
-        table.setRowCount(len(item.value))
-        for row, value in enumerate(sorted(item.value)):
-            table.setItem(row, 0, QTableWidgetItem(value))
+        rows = set([item.row() for item in table.selectedIndexes()])
+        for row in sorted(rows, reverse=True):
+            table.removeRow(row)
+        self.modified = True
+        self.update_ui()
+
+    def update_ui(self):
+        ui, modified = self.ui, self.modified
+        style = ModifiedStyle if modified else ''
+        selected_count = len(ui.table.selectedIndexes())
+        ui.table.setStyleSheet(style)
+        ui.apply_button.setEnabled(modified)
+        ui.revert_button.setEnabled(modified)
+        ui.delete_button.setEnabled(selected_count > 0)
 
 
 @ui_loadable
@@ -66,11 +101,12 @@ class SimpleEditor(QWidget):
     def __init__(self, parent=None):
         super(SimpleEditor, self).__init__(parent)
         self.load_ui()
-        self.ui.key_value.textChanged.connect(self.__on_text_changed)
-        self.ui.incr_button.clicked.connect(partial(self.__incr_by, scale=1))
-        self.ui.decr_button.clicked.connect(partial(self.__incr_by, scale=-1))
-        self.ui.apply_button.clicked.connect(self.__on_apply)
-        self.ui.revert_button.clicked.connect(self.__on_revert)
+        ui = self.ui
+        ui.key_value.textChanged.connect(self.__on_text_changed)
+        ui.incr_button.clicked.connect(partial(self.__incr_by, scale=1))
+        ui.decr_button.clicked.connect(partial(self.__incr_by, scale=-1))
+        ui.apply_button.clicked.connect(self.__on_apply)
+        ui.revert_button.clicked.connect(self.__on_revert)
 
     def set_item(self, item):
         self.original_item = self.item = item
@@ -134,9 +170,11 @@ class RedisItemEditor(QWidget):
         layout.setContentsMargins(3, 3, 3, 3)
         self.none_editor = QWidget()
         self.simple_editor = SimpleEditor()
-        self.hash_editor = HashEditor()
-        self.seq_editor = ListEditor()
-        self.set_editor = SetEditor()
+        self.hash_editor = MultiEditor()
+        self.seq_editor = MultiEditor()
+        self.seq_editor.ui.table.horizontalHeader().setVisible(False)
+        self.set_editor = MultiEditor()
+        self.set_editor.ui.table.horizontalHeader().setVisible(False)
         layout.addWidget(self.none_editor)
         layout.addWidget(self.simple_editor)
         layout.addWidget(self.hash_editor)

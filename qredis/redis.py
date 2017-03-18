@@ -14,7 +14,7 @@ def _set(redis, key, value):
 
 def _set_list(redis, key, lst):
     redis.delete(key)
-    redis.lpush(key, *lst)
+    redis.rpush(key, *lst)
 
 
 def _set_set(redis, key, st):
