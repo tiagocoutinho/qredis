@@ -125,7 +125,7 @@ class SimpleEditor(QWidget):
             i.redis.set(i.key, i.value)
             self.original_item = i
         except Exception as e:
-            print 'error', str(e)
+            print('error', str(e))
         self.__update()
 
     def __on_text_changed(self):
@@ -210,7 +210,7 @@ class RedisItemEditor(QWidget):
                 item.redis.rename(original_item.key, item.key)
                 self.__original_item = original_item._replace(key=item.key)
             except Exception as e:
-                print 'error', str(e)
+                print('error', str(e))
             self.__update()
 
     def __on_ttl_changed(self, ttl):
@@ -225,7 +225,7 @@ class RedisItemEditor(QWidget):
                 item.redis.expire(item.key, item.ttl)
                 self.__original_item = original_item._replace(ttl=item.ttl)
             except Exception as e:
-                print 'error', str(e)
+                print('error', str(e))
             self.__update()
 
     def __on_refresh(self):
@@ -235,13 +235,13 @@ class RedisItemEditor(QWidget):
         try:
             self.__item.redis.persist(self.__item.key)
         except Exception as e:
-            print 'error', str(e)
+            print('error', str(e))
 
     def __on_delete(self):
         try:
             self.__item.redis.delete(self.__item.key)
         except Exception as e:
-            print 'error', str(e)
+            print('error', str(e))
 
     @property
     def name_modified(self):

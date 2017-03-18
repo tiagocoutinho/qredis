@@ -74,7 +74,7 @@ class RedisItem(QTreeWidgetItem):
         parent_changed = old_sub_keys[:-1] != new_sub_keys[:-1]
         item = self.key_items.pop(old_key)
         if parent_changed:
-            print 'TODO'
+            print('TODO')
         else:
             label = new_sub_keys[-1][1:] if len(new_sub_keys) > 1 else new_sub_keys[-1]
             self.key_items[new_key] = item
@@ -144,7 +144,7 @@ class RedisTree(QMainWindow):
         ui.flush_db_action.triggered.connect(self.__on_flush_db)
 
     def contextMenuEvent(self, event):
-        print 1
+        print(1)
 
     @property
     def selected_items(self):
