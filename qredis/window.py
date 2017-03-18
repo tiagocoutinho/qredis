@@ -1,14 +1,13 @@
 import os
 import logging
 
-from .qt import Qt, QMainWindow, QApplication, QIcon, QSplitter, ui_loadable
+from .qt import QMainWindow, QApplication, QIcon, ui_loadable
+from .util import restart
+from .redis import QRedis
 from .panel import RedisPanel
 from .dialog import AboutDialog
-from .util import restart
 
-_this_dir = os.path.dirname(__file__)
-_res_dir = os.path.join(_this_dir, 'images')
-_redis_icon = os.path.join(_res_dir, 'redis_logo.png')
+_redis_icon = os.path.join(os.path.dirname(__file__), 'images', 'redis_logo.png')
 
 
 @ui_loadable
@@ -61,8 +60,7 @@ def main():
     application = QApplication(sys.argv)
     window = RedisWindow()
     if kwargs:
-        import redis
-        r = redis.Redis(**kwargs)
+        r = QRedis(**kwargs)
         window.add_redis(r)
     window.show()
     sys.exit(application.exec_())

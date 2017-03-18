@@ -1,10 +1,9 @@
 from functools import partial
 from collections import namedtuple
 
-from redis import Redis
-
-from .qt import QWidget, QStackedLayout, QTableWidgetItem, QDialogButtonBox, Signal, ui_loadable
 from .util import redis_str
+from .qt import QWidget, QStackedLayout, QTableWidgetItem, QDialogButtonBox, \
+                Signal, ui_loadable
 
 Item = namedtuple('Item', 'redis key type ttl value')
 
@@ -124,8 +123,6 @@ class SimpleEditor(QWidget):
 @ui_loadable
 class RedisItemEditor(QWidget):
 
-    keyNameChanged = Signal(object, object)
-
     def __init__(self, parent=None):
         super(RedisItemEditor, self).__init__(parent)
         self.load_ui()
@@ -145,11 +142,11 @@ class RedisItemEditor(QWidget):
         layout.addWidget(self.seq_editor)
         layout.addWidget(self.set_editor)
         self.type_editor_map = {
-            'none': (self.none_editor, None),
-            'string': (self.simple_editor, Redis.get),
-            'hash': (self.hash_editor, Redis.hgetall),
-            'list': (self.seq_editor, lambda db, key: db.lrange(key, 0, -1)),
-            'set': (self.set_editor, Redis.smembers),
+            'none': self.none_editor,
+            'string': self.simple_editor,
+            'hash': self.hash_editor,
+            'list': self.seq_editor,
+            'set': self.set_editor,
         }
         ui.key_name.textChanged.connect(self.__on_key_name_changed)
         ui.key_name.editingFinished.connect(self.__on_key_name_applyed)
@@ -182,7 +179,6 @@ class RedisItemEditor(QWidget):
             except Exception as e:
                 print 'error', str(e)
             self.__update()
-            self.keyNameChanged.emit(original_item, item)
 
     def __on_ttl_changed(self, ttl):
         self.__item = self.__item._replace(ttl=ttl)
@@ -219,15 +215,15 @@ class RedisItemEditor(QWidget):
         ui.apply_ttl_button.setEnabled(ttl_modified)
 
     def set_item(self, redis, key):
-        exists, dtype, ttl = redis.exists(key), redis.type(key), redis.ttl(key)
-        ttl = -1 if ttl is None else ttl # handle redis < 2.8
-        key = key if exists else ''
-        editor, getter = self.type_editor_map[dtype]
-        value = getter(redis, key) if exists else None
-        item = Item(redis, key, dtype, ttl, value)
-        self.__original_item = self.__item = item
-        if exists and getter:
+        item = redis.get(key)
+        if item is None:
+            editor = self.none_editor
+            ttl = -1
+        else:
+            editor = self.type_editor_map[item.type]
             editor.set_item(item)
+            ttl = item.ttl
+        self.__original_item = self.__item = item
         self.ui.type_editor.layout().setCurrentWidget(editor)
         self.ui.key_name.setText(key)
         self.ui.ttl_value.setValue(ttl)
@@ -253,8 +249,6 @@ class RedisDbEditor(QWidget):
 
 class RedisEditor(QWidget):
 
-    keyNameChanged = Signal(object, object)
-
     def __init__(self, parent=None):
         super(RedisEditor, self).__init__(parent)
         self.empty = QWidget(self)
@@ -264,7 +258,6 @@ class RedisEditor(QWidget):
         layout.addWidget(self.empty)
         layout.addWidget(self.item)
         layout.addWidget(self.db)
-        self.item.keyNameChanged.connect(self.keyNameChanged.emit)
 
     def set_empty(self):
         self.layout().setCurrentWidget(self.empty)

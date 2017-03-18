@@ -1,5 +1,4 @@
-import redis
-
+from .redis import QRedis
 from .qt import Qt, QDialog, QRegExpValidator, QRegExp, ui_loadable
 
 
@@ -23,7 +22,7 @@ class OpenRedisDialog(QDialog):
         password = self.ui.password.text()
         if password:
             kwargs['password'] = password
-        if self.ui.tcp_option:
+        if self.ui.tcp_option.isChecked():
             url = self.ui.tcp.text()
             if ':' in url:
                 host, port = url.split(':')
@@ -35,7 +34,7 @@ class OpenRedisDialog(QDialog):
                 kwargs['host'] = host
         else:
             kwargs['unix_socket_path'] = self.ui.socket.text()
-        return redis.Redis(**kwargs)
+        return QRedis(**kwargs)
 
     @classmethod
     def create_redis(cls):

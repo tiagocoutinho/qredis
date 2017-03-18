@@ -1,7 +1,8 @@
 import os
 import sys
+import collections
 
-__startup_cwd = os.getcwd()
+KeyItem = collections.namedtuple('KeyItem', 'redis key type ttl value')
 
 
 def redis_str(redis, filter=None):
@@ -46,6 +47,7 @@ def redis_key_split(key, chars='.'):
     return result
 
 
+__startup_cwd = os.getcwd()
 def restart():
     if 'linux' in sys.platform.lower():
         with open('/proc/{0}/cmdline'.format(os.getpid())) as f:

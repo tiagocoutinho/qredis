@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>451</width>
-    <height>489</height>
+    <height>347</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -54,11 +54,11 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="update_key_action"/>
+   <addaction name="update_action"/>
    <addaction name="add_key_action"/>
    <addaction name="remove_key_action"/>
-   <addaction name="persist_key_action"/>
    <addaction name="touch_key_action"/>
+   <addaction name="persist_key_action"/>
    <addaction name="copy_key_action"/>
   </widget>
   <widget class="QToolBar" name="db_toolbar">
@@ -129,9 +129,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme="go-jump">
-     <normaloff/>
-    </iconset>
+    <iconset theme="go-down"/>
    </property>
    <property name="text">
     <string>Touch key</string>
@@ -188,7 +186,7 @@
     <string>Copies selected key value into a new key</string>
    </property>
   </action>
-  <action name="update_key_action">
+  <action name="update_action">
    <property name="enabled">
     <bool>false</bool>
    </property>
@@ -201,10 +199,10 @@
     <string>Update key</string>
    </property>
    <property name="toolTip">
-    <string>Updates the selected key(s) value, type and TTL</string>
+    <string>Update selected DB(s)</string>
    </property>
    <property name="statusTip">
-    <string>Update selected key(s) (F5)</string>
+    <string>Update</string>
    </property>
   </action>
   <action name="open_db_action">

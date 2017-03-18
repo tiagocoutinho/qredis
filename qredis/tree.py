@@ -4,12 +4,11 @@ import pprint
 import logging
 import collections
 
-import redis
-
 from .qt import Qt, QMainWindow, QApplication, QTreeWidget, QTreeWidgetItem, \
                 QMessageBox, QIcon, QFont, QMenu, QSize, Signal, ui_loadable
 from .dialog import OpenRedisDialog
 from .util import redis_str, redis_key_split
+from .redis import QRedis, ConnectionError
 
 
 _this_dir = os.path.dirname(__file__)
@@ -39,6 +38,7 @@ class RedisItem(QTreeWidgetItem):
         self.key_items = {}
         self.setIcon(0, QIcon(_redis_icon))
         self.redis = redis
+        redis.keyRenamed.connect(self.__on_key_renamed)
 
     @property
     def filter(self):
@@ -67,7 +67,8 @@ class RedisItem(QTreeWidgetItem):
             item['has_value'] = True
         self.key_items = fill_item(self, root_children)
 
-    def rename_key(self, old_key, new_key):
+    def __on_key_renamed(self, old_item, new_item):
+        old_key, new_key = old_item.key, new_item.key
         old_sub_keys = redis_key_split(old_key, self.__split)
         new_sub_keys = redis_key_split(new_key, self.__split)
         parent_changed = old_sub_keys[:-1] != new_sub_keys[:-1]
@@ -126,7 +127,6 @@ class RedisTree(QMainWindow):
         ui = self.ui
         header = ui.tree.header()
         header.resizeSection(0, 220)
-#        ui.tree.itemClicked.connect(self.__on_update_item)
         ui.tree.itemSelectionChanged.connect(self.__on_item_selection_changed)
         self.selectionChanged.connect(self.__on_selection_changed)
         ui.add_key_action.triggered.connect(self.__on_add_key)
@@ -134,20 +134,11 @@ class RedisTree(QMainWindow):
         ui.touch_key_action.triggered.connect(self.__on_touch_key)
 
         ui.open_db_action.triggered.connect(self.__on_open_db)
+        ui.close_db_action.triggered.connect(self.__on_close_db)
         ui.flush_db_action.triggered.connect(self.__on_flush_db)
 
     def contextMenuEvent(self, event):
         print 1
-
-    def rename_key(self, old, new):
-        tree = self.ui.tree
-        for i in range(tree.topLevelItemCount()):
-            redis_item = tree.topLevelItem(i)
-            if redis_item.redis == old.redis:
-                redis_item.rename_key(old.key, new.key)
-                break
-        else:
-            print 'warning could not find redis db to rename key in tree'
 
     @property
     def selected_items(self):
@@ -178,7 +169,6 @@ class RedisTree(QMainWindow):
         db_items = selected['db_items']
         n_items, n_keys, n_dbs = map(len, (all_items, key_items, db_items))
         ui.add_key_action.setEnabled(n_items == 1)
-        ui.update_key_action.setEnabled(n_keys > 0)
         ui.remove_key_action.setEnabled(n_keys > 0)
         ui.persist_key_action.setEnabled(n_keys > 0)
         ui.touch_key_action.setEnabled(n_keys > 0)
@@ -195,6 +185,9 @@ class RedisTree(QMainWindow):
         if redis:
             self.add_redis(redis)
 
+    def __on_close_db(self):
+        pass
+
     def __on_flush_db(self):
         pass
 
@@ -210,17 +203,15 @@ class RedisTree(QMainWindow):
         redis, key = item.redis, item.key
 
     def __on_remove_key(self):
-        selected = self.elected_items
+        selected = self.selected_items
         key_items, db_keys = selected['key_items'], selected['db_keys']
         for db, keys in db_keys.items():
             db.delete(*keys)
-        for key_item in key_items:
-            key_item.parent().removeChild(key_item)
 
     def __on_update_item(self, item, column=None):
         try:
             item.update()
-        except redis.ConnectionError as ce:
+        except ConnectionError as ce:
             QMessageBox.critical(self, "Connection Error", str(ce))
 
     def add_redis(self, db):
@@ -228,7 +219,7 @@ class RedisTree(QMainWindow):
         self.ui.tree.addTopLevelItem(item)
         try:
             item.update()
-        except redis.ConnectionError:
+        except ConnectionError:
             pass
         item.setExpanded(True)
 
@@ -260,7 +251,7 @@ def main():
     application = QApplication(sys.argv)
     window = RedisTree()
     if kwargs:
-        r = redis.Redis(**kwargs)
+        r = QRedis(**kwargs)
         window.add_redis(r)
     window.show()
     sys.exit(application.exec_())
