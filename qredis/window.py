@@ -27,17 +27,26 @@ class RedisWindow(QMainWindow):
         ui.restart_action.triggered.connect(restart)
         ui.quit_action.triggered.connect(QApplication.quit)
         ui.about_action.triggered.connect(lambda: self.about_dialog.exec_())
+        ui.tab_windows_action.toggled.connect(self.__on_tab_toggled)
 
     def __on_open_db(self):
         redis = OpenRedisDialog.create_redis()
         if redis:
             self.add_redis_panel(redis)
 
+    def __on_tab_toggled(self, checked):
+        mdi = self.ui.mdi
+        mdi.setViewMode(mdi.TabbedView if checked else mdi.SubWindowView)
+
     def add_redis_panel(self, *redis):
         panel = RedisPanel(parent=self)
         for r in redis:
             panel.add_redis(r)
-        return self.ui.mdi.addSubWindow(panel)
+        window = self.ui.mdi.addSubWindow(panel)
+        window.setWindowTitle('Redis')
+        if len(self.ui.mdi.subWindowList()) == 1:
+            window.showMaximized()
+        return window
 
 
 def main():
@@ -68,7 +77,7 @@ def main():
     window = RedisWindow()
     if kwargs:
         r = QRedis(**kwargs)
-        window.add_redis_panel(r).showMaximized()
+        window.add_redis_panel(r)
     window.show()
     sys.exit(application.exec_())
 

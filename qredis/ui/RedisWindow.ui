@@ -22,7 +22,11 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QMdiArea" name="mdi"/>
+     <widget class="QMdiArea" name="mdi">
+      <property name="tabsClosable">
+       <bool>true</bool>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -66,7 +70,15 @@
     <addaction name="separator"/>
     <addaction name="about_action"/>
    </widget>
+   <widget class="QMenu" name="menuWindow">
+    <property name="title">
+     <string>Window</string>
+    </property>
+    <addaction name="tab_windows_action"/>
+    <addaction name="separator"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuWindow"/>
    <addaction name="menuHelp"/>
   </widget>
   <action name="help_action">
@@ -144,6 +156,20 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="tab_windows_action">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Tabbed windows</string>
+   </property>
+   <property name="toolTip">
+    <string>Sub-windows tabbed</string>
    </property>
   </action>
  </widget>
