@@ -25,7 +25,7 @@ def _set_set(redis, key, st):
 class QRedis(QObject):
 
     keyRenamed = Signal(object, object)
-    keyDeleted = Signal(object)
+    keysDeleted = Signal()
 
     TYPE_MAP = {
         type(None): 'none',
@@ -82,10 +82,12 @@ class QRedis(QObject):
     def __delitem__(self, key):
         self.delete(key)
 
-    def delete(self, key):
-        item = self[key]
-        self.redis.delete(key)
-        self.keyDeleted.emit(item)
+    def has_key(self, key):
+        return self.exists(key)
+
+    def delete(self, *keys):
+        self.redis.delete(*keys)
+        self.keysDeleted.emit()
 
     def rename(self, old_key, new_key):
         old_item = self[old_key]

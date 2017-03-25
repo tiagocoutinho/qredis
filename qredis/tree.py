@@ -1,12 +1,15 @@
 import os
 import sys
 import logging
+import functools
 import collections
 
 from .qt import Qt, QMainWindow, QApplication, QTreeWidget, QTreeWidgetItem, \
-                QMessageBox, QIcon, QFont, QMenu, QSize, Signal, ui_loadable
+                QToolButton, QMessageBox, QIcon, QFont, QMenu, QSize, Signal, \
+                ui_loadable
 from .dialog import OpenRedisDialog
 from .util import redis_str, redis_key_split
+from .util import KeyItem as Item
 from .redis import QRedis, ConnectionError
 
 
@@ -38,7 +41,7 @@ class RedisItem(QTreeWidgetItem):
         self.setIcon(0, QIcon(_redis_icon))
         self.redis = redis
         redis.keyRenamed.connect(self.__on_key_renamed)
-        redis.keyDeleted.connect(self.__on_key_deleted)
+        redis.keysDeleted.connect(self.__on_keys_deleted)
 
     @property
     def filter(self):
@@ -64,25 +67,31 @@ class RedisItem(QTreeWidgetItem):
                 item['name'] = key_name
                 item['key'] = sub_key
                 item['has_value'] = False
-            item['has_value'] = True
+                item['has_value'] = True
         self.key_items = fill_item(self, root_children)
 
     def __on_key_renamed(self, old_item, new_item):
         old_key, new_key = old_item.key, new_item.key
+        if not old_key:
+            return
         old_sub_keys = redis_key_split(old_key, self.__split)
         new_sub_keys = redis_key_split(new_key, self.__split)
         parent_changed = old_sub_keys[:-1] != new_sub_keys[:-1]
         item = self.key_items.pop(old_key)
         if parent_changed:
-            print('TODO')
+            self.update()
         else:
             label = new_sub_keys[-1][1:] if len(new_sub_keys) > 1 else new_sub_keys[-1]
             self.key_items[new_key] = item
             item.rename(new_key, label)
 
-    def __on_key_deleted(self, item):
-        key_item = self.key_items[item.key]
-        key_item.parent().removeChild(key_item)
+    def __on_keys_deleted(self):
+        print 'udpate'
+        self.update()
+
+    @property
+    def redis_item(self):
+        return self
 
 
 class KeyItem(QTreeWidgetItem):
@@ -117,10 +126,15 @@ class KeyItem(QTreeWidgetItem):
     def redis(self):
         return self.root_item.redis
 
+    @property
+    def redis_item(self):
+        return self.root_item
+
 
 @ui_loadable
 class RedisTree(QMainWindow):
 
+    addKey = Signal(object)
     selectionChanged = Signal(object)
 
     def __init__(self, parent=None):
@@ -132,9 +146,25 @@ class RedisTree(QMainWindow):
         header = ui.tree.header()
         header.resizeSection(0, 220)
         ui.open_db_action.setIcon(QIcon(_redis_icon))
+        add_menu = QMenu('Add')
+        ui.add_string_action = add_menu.addAction('string')
+        ui.add_list_action = add_menu.addAction('list')
+        ui.add_set_action = add_menu.addAction('set')
+        ui.add_hash_action = add_menu.addAction('hash')
+        add_button = QToolButton()
+        add_button.setMenu(add_menu)
+        add_button.setPopupMode(QToolButton.InstantPopup)
+        add_button.setIcon(QIcon.fromTheme('list-add'))
+        ui.add_key_action = ui.db_toolbar.insertWidget(ui.remove_key_action, add_button)
+        ui.add_key_action.setEnabled(False)
+
         ui.tree.itemSelectionChanged.connect(self.__on_item_selection_changed)
         self.selectionChanged.connect(self.__on_selection_changed)
-        ui.add_key_action.triggered.connect(self.__on_add_key)
+        ui.add_string_action.triggered.connect(functools.partial(self.__on_add_key, 'string'))
+        ui.add_list_action.triggered.connect(functools.partial(self.__on_add_key, 'list'))
+        ui.add_set_action.triggered.connect(functools.partial(self.__on_add_key,  'set'))
+        ui.add_hash_action.triggered.connect(functools.partial(self.__on_add_key, 'hash'))
+
         ui.remove_key_action.triggered.connect(self.__on_remove_key)
         ui.touch_key_action.triggered.connect(self.__on_touch_key)
 
@@ -180,7 +210,7 @@ class RedisTree(QMainWindow):
         ui.touch_key_action.setEnabled(n_keys > 0)
         ui.copy_key_action.setEnabled(n_keys > 0)
         ui.flush_db_action.setEnabled(not n_keys and n_dbs)
-        ui.update_db_action.setEnabled(n_dbs > 0)
+        ui.update_db_action.setEnabled(n_items > 0)
         ui.close_db_action.setEnabled(n_dbs > 0)
 
     def __on_open_db(self):
@@ -195,7 +225,10 @@ class RedisTree(QMainWindow):
         pass
 
     def __on_update_db(self):
-        for db_item in self.selected_items['db_items']:
+        db_items = set()
+        for item in self.selected_items['all_items']:
+            db_items.add(item.redis_item)
+        for db_item in db_items:
             db_item.update()
 
     def __on_swap_db(self):
@@ -205,15 +238,22 @@ class RedisTree(QMainWindow):
         selected = self.selected_items
         db_items = selected['db_items']
 
-    def __on_add_key(self):
-        item = self.ui.tree.selectedItems()[0]
-        redis, key = item.redis
+    def __on_add_key(self, dtype):
+        tree_item = self.ui.tree.selectedItems()[0]
+        value = None
+        if dtype == 'string': value = ''
+        elif dtype == 'list': value = []
+        elif dtype == 'set': value = set()
+        elif dtype == 'hash': value = {}
+        item = Item(tree_item.redis, '', dtype, -1, value)
+        self.addKey.emit(item)
 
     def __on_remove_key(self):
         selected = self.selected_items
         key_items, db_keys = selected['key_items'], selected['db_keys']
         for db, keys in db_keys.items():
             db.delete(*keys)
+        self.ui.tree.clearSelection()
 
     def __on_update_item(self, item, column=None):
         try:

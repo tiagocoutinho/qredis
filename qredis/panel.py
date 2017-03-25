@@ -14,6 +14,10 @@ class RedisPanel(QSplitter):
         self.setStretchFactor(0, 1)
         self.setStretchFactor(1, 1)
         self.tree.selectionChanged.connect(self.__on_selection_changed)
+        self.tree.addKey.connect(self.editor.set_item)
+
+    def __on_add_key(self, item):
+        self.editor.set_item(item)
 
     def __on_selection_changed(self, selected):
         all_items = selected['all_items']
@@ -25,9 +29,9 @@ class RedisPanel(QSplitter):
             key_items = selected['key_items']
             if key_items:
                 key_item = key_items[0]
-                if key_item.has_value:
-                    self.editor.set_item(key_item.redis, key_item.key)
-                    return
+                item = key_item.redis.get(key_item.key)
+                self.editor.set_item(item)
+                return
         self.editor.set_empty()
 
     def add_redis(self, redis):

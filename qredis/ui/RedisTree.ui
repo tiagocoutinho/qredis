@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>300</width>
+    <width>433</width>
     <height>247</height>
    </rect>
   </property>
@@ -68,28 +68,11 @@
    <addaction name="flush_db_action"/>
    <addaction name="update_db_action"/>
    <addaction name="separator"/>
-   <addaction name="add_key_action"/>
    <addaction name="remove_key_action"/>
    <addaction name="touch_key_action"/>
    <addaction name="persist_key_action"/>
    <addaction name="copy_key_action"/>
   </widget>
-  <action name="add_key_action">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset theme="list-add">
-     <normaloff/>
-    </iconset>
-   </property>
-   <property name="text">
-    <string>Add key</string>
-   </property>
-   <property name="toolTip">
-    <string>Add a new key with a value</string>
-   </property>
-  </action>
   <action name="remove_key_action">
    <property name="enabled">
     <bool>false</bool>
@@ -127,7 +110,9 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme="go-down"/>
+    <iconset theme="go-down">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>Touch key</string>

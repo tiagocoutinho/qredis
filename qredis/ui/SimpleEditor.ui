@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>327</width>
-    <height>104</height>
+    <height>107</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -77,22 +77,7 @@
         <number>3</number>
        </property>
        <item>
-        <widget class="QToolButton" name="revert_button">
-         <property name="toolTip">
-          <string>Revert</string>
-         </property>
-         <property name="text">
-          <string>Undo</string>
-         </property>
-         <property name="icon">
-          <iconset theme="document-revert">
-           <normaloff/>
-          </iconset>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_3">
+        <spacer name="horizontalSpacer">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -105,16 +90,17 @@
         </spacer>
        </item>
        <item>
-        <widget class="QToolButton" name="apply_button">
+        <widget class="QToolButton" name="revert_button">
          <property name="toolTip">
-          <string>Apply</string>
+          <string>Revert</string>
          </property>
          <property name="text">
-          <string>Apply</string>
+          <string>Undo</string>
          </property>
          <property name="icon">
-          <iconset theme="document-save">
-           <normaloff>../../</normaloff>../../</iconset>
+          <iconset theme="document-revert">
+           <normaloff/>
+          </iconset>
          </property>
         </widget>
        </item>

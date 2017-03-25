@@ -10,6 +10,7 @@ import qredis
 
 requirements = [
     'redis',
+    'PyQt4',
 ]
 
 test_requirements = [
