@@ -13,10 +13,14 @@ requirements = [
     'PyQt4',
 ]
 
+with open(os.path.join(_this_dir, 'README.rst')) as f:
+    readme = f.read()
+
 setup(
     name='qredis',
     version=qredis.__version__,
-    description="QRedis GUI",
+    description="Qt based Redis GUI",
+    long_description=readme,
     author="Tiago Coutinho",
     author_email='coutinhotiago@gmail.com',
     url='https://github.com/tiagocoutinho/qredis',
