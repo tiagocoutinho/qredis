@@ -47,8 +47,8 @@ def load_ui(obj, filename=None, path=None, with_ui='ui'):
     widget class is called MyWidget it tries to find a MyWidget.ui).
     If path is not given it uses the directory where the python file which
     defines the widget is located plus a *ui* directory (example: if your widget
-    is defined in a file /home/homer/workspace/taurusgui/my_widget.py then it uses
-    the path /home/homer/workspace/taurusgui/ui)
+    is defined in a file /home/homer/workspace/my_project/my_widget.py then it uses
+    the path /home/homer/workspace/my_project/ui)
 
     :param filename: the QtDesigner .ui file name [default: None, meaning
                       calculate file name with the algorithm explained before]
@@ -96,15 +96,14 @@ def ui_loadable(klass=None, with_ui='ui'):
     :file:`<my_widget_dir>/ui/MyWidget.ui` which is a QWidget panel with *at
     least* a QPushButton with objectName *my_button* ::
 
-        from taurus.external.qt import Qt
-        from taurus.qt.qtgui.util.ui import UILoadable
+        from qredis.qt import Qt, ui_loadable
 
-        @UILoadable
+        @ui_loadable
         class MyWidget(Qt.QWidget):
 
             def __init__(self, parent=None):
                 Qt.QWidget.__init__(self, parent)
-                self.loadUi()
+                self.load_ui()
                 self.my_button.setText("This is MY button")
 
     Another example using a :file:`superUI.ui` file in the same directory as
@@ -113,44 +112,23 @@ def ui_loadable(klass=None, with_ui='ui'):
 
         import os.path
 
-        from taurus.external.qt import Qt
-        from taurus.qt.qtgui.util.ui import UILoadable
+        from qredis.qt import Qt, ui_loadable
 
-        @UILoadable(with_ui="_ui")
+        @ui_loadable(with_ui="_ui")
         class MyWidget(Qt.QWidget):
 
             def __init__(self, parent=None):
                 Qt.QWidget.__init__(self, parent)
-                self.loadUi(filename="superUI.ui", path=os.path.dirname(__file__))
+                self.load_ui(filename="superUI.ui", path=os.path.dirname(__file__))
                 self._ui.my_button.setText("This is MY button")
 
     :param with_ui: assigns a member to the decorated class from which you
                     can access all UI components [default: None, meaning no
                     member is created]
     :type with_ui: str
-
-    .. warning::
-        the current implementation (Jul14) doesn't prevent Qt from overloading
-        any members you might have defined previously by the widget object names
-        from the UI file. This happens even if *with_ui* parameter is given.
-        For example, if the UI contains a QPushButton with objectName
-        *my_button*::
-
-            @UILoadable(with_ui="_ui")
-            class MyWidget(Qt.QWidget):
-
-                def __init__(self, parent=None):
-                    Qt.QWidget.__init__(self, parent)
-                    self.my_button = "hello"
-                    self.loadUi()
-            widget = MyWidget()
-            print widget.my_button
-            <PyQt4.QtGui.QPushButton object at 0x159e2f8>
-
-        This little problem should be solved in the next taurus version.
     """
     if klass is None:
-        return functools.partial(UILoadable, with_ui=with_ui)
+        return functools.partial(ui_loadable, with_ui=with_ui)
 
     klass_name = klass.__name__
     klass_file = sys.modules[klass.__module__].__file__
