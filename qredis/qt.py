@@ -5,8 +5,12 @@ __V = 4
 try:
     import PyQt4
 except ImportError:
-    __V = 5
-
+    try:
+        import PyQt5
+        __V = 5
+    except ImportError:
+        __V = None
+        raise ImportError('No Qt module accessible')
 
 if __V == 4:
     import sip
