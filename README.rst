@@ -5,6 +5,15 @@ A Python_, Qt_ based Redis_ client user interface.
 
 .. image:: doc/screen1.png
 
+Help wanted
+-----------
+
+Open to people who want to colaborate.
+
+- Would like to know which features you would like to have
+- Pull requests are welcome
+- You can always open an issue saying you want to be part of the team
+
 Installation
 ------------
 
