@@ -38,10 +38,10 @@ def redis_value(redis, key, dtype=None):
 def redis_key_split(key, chars='.'):
     result, curr = [], ''
     for char in key:
-        if char in chars:
+        if str(char) in chars:
             result.append(curr)
             curr = ''
-        curr += char
+        curr += str(char)
     if curr:
         result.append(curr)
     return result
