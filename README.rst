@@ -37,7 +37,7 @@ Usage
     $ qredis
 
     $ connect to localhost:6379, db=0
-    $ qredis -p 637
+    $ qredis -p 6379
 
     $ connect with unix socket, db=5
     $ qredis -s /tmp/redis.sock -n 5
