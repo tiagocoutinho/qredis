@@ -86,7 +86,7 @@ class RedisItem(QTreeWidgetItem):
             item.rename(new_key, label)
 
     def __on_keys_deleted(self):
-        print('udpate')
+        print('update')
         self.update()
 
     @property
