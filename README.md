@@ -21,8 +21,8 @@ $ pip install qredis
 
 ## Requirements
 
-- Python >= 2.6
-- [PyQt](http://riverbankcomputing.com/software/pyqt) (4/5)
+- Python >= 3.5
+- [PyQt](http://riverbankcomputing.com/software/pyqt) 5
   (or in the future PySide)
 - [redis-py](https://github.com/andymccurdy/redis-py)
 
