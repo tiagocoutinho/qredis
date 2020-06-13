@@ -11,7 +11,7 @@ class OpenRedisDialog(QDialog):
         """Display a dialog to open a new redis connection"""
         super(OpenRedisDialog, self).__init__(parent)
         self.load_ui()
-        v = QRegExpValidator(QRegExp('([^:/]+)?(:[0-9]+)?'))
+        v = QRegExpValidator(QRegExp("([^:/]+)?(:[0-9]+)?"))
         self.ui.tcp.setValidator(v)
         self.ui.tcp_option.setChecked(True)
 
@@ -21,19 +21,19 @@ class OpenRedisDialog(QDialog):
         kwargs = dict(db=self.ui.db.value())
         password = self.ui.password.text()
         if password:
-            kwargs['password'] = password
+            kwargs["password"] = password
         if self.ui.tcp_option.isChecked():
             url = self.ui.tcp.text()
-            if ':' in url:
-                host, port = url.split(':')
+            if ":" in url:
+                host, port = url.split(":")
                 if port:
-                    kwargs['port'] = int(port)
+                    kwargs["port"] = int(port)
             else:
                 host = url
             if host:
-                kwargs['host'] = host
+                kwargs["host"] = host
         else:
-            kwargs['unix_socket_path'] = self.ui.socket.text()
+            kwargs["unix_socket_path"] = self.ui.socket.text()
         return QRedis(**kwargs)
 
     @classmethod
@@ -49,4 +49,4 @@ class AboutDialog(QDialog):
     def __init__(self, parent=None):
         """Display a dialog that shows application information."""
         super(AboutDialog, self).__init__(parent)
-        self.setWindowTitle('About')
+        self.setWindowTitle("About")

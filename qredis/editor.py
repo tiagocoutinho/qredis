@@ -1,16 +1,14 @@
 from datetime import timedelta
 from functools import partial
-from collections import namedtuple
 
 from .util import redis_str
-from .qt import QWidget, QStackedLayout, QTableWidgetItem, QDialogButtonBox, \
-                QIntValidator, Signal, ui_loadable
+from .qt import QWidget, QStackedLayout, QTableWidgetItem, QIntValidator, ui_loadable
 
-ModifiedStyle = 'background-color: rgb(255,200,200);'
+ModifiedStyle = "background-color: rgb(255,200,200);"
+
 
 @ui_loadable
 class MultiEditor(QWidget):
-
     def __init__(self, parent=None):
         super(MultiEditor, self).__init__(parent)
         self.load_ui()
@@ -53,7 +51,7 @@ class MultiEditor(QWidget):
 
     def __update(self):
         ui, modified = self.ui, self.modified
-        style = ModifiedStyle if modified else ''
+        style = ModifiedStyle if modified else ""
         selected_count = len(ui.table.selectedIndexes())
         ui.table.setStyleSheet(style)
         ui.revert_button.setEnabled(modified)
@@ -61,13 +59,13 @@ class MultiEditor(QWidget):
 
     def get_item(self):
         table, item = self.ui.table, self.item
-        if item.type == 'hash':
+        if item.type == "hash":
             value = {}
             for row in range(table.rowCount()):
                 value[table.item(row, 0).text()] = table.item(row, 1).text()
         else:
             value = [table.item(row, 0).text() for row in range(table.rowCount())]
-            value = value if item.type == 'list' else set(value)
+            value = value if item.type == "list" else set(value)
         return item._replace(value=value)
 
     def set_item(self, item):
@@ -76,13 +74,13 @@ class MultiEditor(QWidget):
         table.clearContents()
         dtype, value = item.type, item.value
         table.setRowCount(len(value))
-        header = ('Key', 'Value') if dtype == 'hash' else ('Value',)
+        header = ("Key", "Value") if dtype == "hash" else ("Value",)
         table.setColumnCount(len(header))
         table.setHorizontalHeaderLabels(header)
-        keys = value if dtype == 'list' else sorted(value)
+        keys = value if dtype == "list" else sorted(value)
         for row, key in enumerate(keys):
             table.setItem(row, 0, QTableWidgetItem(key))
-        if item.type == 'hash':
+        if item.type == "hash":
             for row, key in enumerate(keys):
                 table.setItem(row, 1, QTableWidgetItem(value[key]))
         self.modified = False
@@ -91,7 +89,6 @@ class MultiEditor(QWidget):
 
 @ui_loadable
 class SimpleEditor(QWidget):
-
     def __init__(self, parent=None):
         super(SimpleEditor, self).__init__(parent)
         self.load_ui()
@@ -114,7 +111,7 @@ class SimpleEditor(QWidget):
         ui = self.ui
         modified = self.modified
         ui.revert_button.setEnabled(modified)
-        style = ModifiedStyle if modified else ''
+        style = ModifiedStyle if modified else ""
         ui.key_value.setStyleSheet(style)
 
     def __incr_by(self, scale=1):
@@ -146,7 +143,6 @@ class SimpleEditor(QWidget):
 
 @ui_loadable
 class RedisItemEditor(QWidget):
-
     def __init__(self, parent=None):
         super(RedisItemEditor, self).__init__(parent)
         self.load_ui()
@@ -168,11 +164,11 @@ class RedisItemEditor(QWidget):
         layout.addWidget(self.seq_editor)
         layout.addWidget(self.set_editor)
         self.type_editor_map = {
-            'none': self.none_editor,
-            'string': self.simple_editor,
-            'hash': self.hash_editor,
-            'list': self.seq_editor,
-            'set': self.set_editor,
+            "none": self.none_editor,
+            "string": self.simple_editor,
+            "hash": self.hash_editor,
+            "list": self.seq_editor,
+            "set": self.set_editor,
         }
         ttl_validator = QIntValidator()
         ttl_validator.setBottom(-1)
@@ -210,8 +206,10 @@ class RedisItemEditor(QWidget):
                     item.redis.rename(original_item.key, item.key)
                     self.__original_item = original_item._replace(key=item.key)
             except Exception as e:
-                import traceback; traceback.print_exc()
-                print('error', str(e))
+                import traceback
+
+                traceback.print_exc()
+                print("error", str(e))
             self.__update()
 
     def __on_ttl_changed(self, ttl):
@@ -226,8 +224,10 @@ class RedisItemEditor(QWidget):
                 item.redis.expire(item.key, item.ttl)
                 self.__original_item = original_item._replace(ttl=item.ttl)
             except Exception as e:
-                import traceback; traceback.print_exc()
-                print('error', str(e))
+                import traceback
+
+                traceback.print_exc()
+                print("error", str(e))
             self.__update()
 
     def __on_refresh(self):
@@ -237,24 +237,24 @@ class RedisItemEditor(QWidget):
         try:
             self.__item.redis.persist(self.__item.key)
         except Exception as e:
-            print('error', str(e))
+            print("error", str(e))
 
     def __on_delete(self):
         try:
             self.__item.redis.delete(self.__item.key)
         except Exception as e:
-            print('error', str(e))
+            print("error", str(e))
 
     def __update(self):
         ui = self.ui
         name_modified, ttl_modified = self.name_modified, self.ttl_modified
-        ui.key_name.setStyleSheet(ModifiedStyle if name_modified else '')
-        ui.ttl_value.setStyleSheet(ModifiedStyle if ttl_modified else '')
+        ui.key_name.setStyleSheet(ModifiedStyle if name_modified else "")
+        ui.ttl_value.setStyleSheet(ModifiedStyle if ttl_modified else "")
         if ttl_modified:
             ttl = self.__item.ttl
-            ttl_str = 'Persistent'
+            ttl_str = "Persistent"
             if ttl > 0:
-                ttl_str = 'TTL: {0}'.format(timedelta(seconds=ttl))
+                ttl_str = "TTL: {0}".format(timedelta(seconds=ttl))
             ui.ttl_value.setToolTip(ttl_str)
 
     @property
@@ -278,12 +278,11 @@ class RedisItemEditor(QWidget):
         if item is None:
             return
         self.ui.key_name.setText(item.key)
-        self.ui.ttl_value.setText(str(ttl) if ttl > 0 else '')
+        self.ui.ttl_value.setText(str(ttl) if ttl > 0 else "")
 
 
 @ui_loadable
 class RedisDbEditor(QWidget):
-
     def __init__(self, parent=None):
         super(RedisDbEditor, self).__init__(parent)
         self.load_ui()
@@ -300,7 +299,6 @@ class RedisDbEditor(QWidget):
 
 
 class RedisEditor(QWidget):
-
     def __init__(self, parent=None):
         super(RedisEditor, self).__init__(parent)
         self.empty = QWidget(self)

@@ -20,13 +20,13 @@ class RedisPanel(QSplitter):
         self.editor.set_item(item)
 
     def __on_selection_changed(self, selected):
-        all_items = selected['all_items']
+        all_items = selected["all_items"]
         if len(all_items) == 1:
-            db_items = selected['db_items']
+            db_items = selected["db_items"]
             if db_items:
                 self.editor.set_db(db_items[0].redis)
                 return
-            key_items = selected['key_items']
+            key_items = selected["key_items"]
             if key_items:
                 key_item = key_items[0]
                 item = key_item.redis.get(key_item.key)
