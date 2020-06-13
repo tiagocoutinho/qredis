@@ -4,9 +4,21 @@ import logging
 import functools
 import collections
 
-from .qt import Qt, QMainWindow, QApplication, QTreeWidget, QTreeWidgetItem, \
-                QToolButton, QMessageBox, QIcon, QFont, QMenu, QSize, Signal, \
-                ui_loadable
+from .qt import (
+    Qt,
+    QMainWindow,
+    QApplication,
+    QTreeWidget,
+    QTreeWidgetItem,
+    QToolButton,
+    QMessageBox,
+    QIcon,
+    QFont,
+    QMenu,
+    QSize,
+    Signal,
+    ui_loadable,
+)
 from .dialog import OpenRedisDialog
 from .util import redis_str, redis_key_split
 from .util import KeyItem as Item
@@ -14,24 +26,24 @@ from .redis import QRedis, ConnectionError
 
 
 _this_dir = os.path.dirname(__file__)
-_res_dir = os.path.join(_this_dir, 'images')
-_redis_icon = os.path.join(_res_dir, 'redis_logo.png')
-_key_icon = os.path.join(_res_dir, 'key.png')
+_res_dir = os.path.join(_this_dir, "images")
+_redis_icon = os.path.join(_res_dir, "redis_logo.png")
+_key_icon = os.path.join(_res_dir, "key.png")
 
 
 def fill_item(item, data):
     result = {}
     for key, value in data.items():
         child = KeyItem(key, value, item)
-        children = value['children']
-        result[value['key']] = child
+        children = value["children"]
+        result[value["key"]] = child
         result.update(fill_item(child, children))
     return result
 
 
 class RedisItem(QTreeWidgetItem):
 
-    SplitChars = '.:'
+    SplitChars = ".:"
 
     def __init__(self, redis, filter=None, split_by=SplitChars, parent=None):
         super(RedisItem, self).__init__(parent, [redis_str(redis)])
@@ -55,19 +67,21 @@ class RedisItem(QTreeWidgetItem):
     def update(self):
         self.takeChildren()
         root_children = collections.OrderedDict()
-        filt = self.filter or '*'
+        filt = self.filter or "*"
         for key in sorted(self.redis.keys(filt)):
             children = root_children
-            sub_key, sub_keys = '', redis_key_split(key, self.__split)
+            sub_key, sub_keys = "", redis_key_split(key, self.__split)
             for i, name in enumerate(sub_keys):
                 sub_key += name
                 key_name = name[1:] if i else name
-                item = children.setdefault(key_name, dict(type='', children=collections.OrderedDict()))
-                children = item['children']
-                item['name'] = key_name
-                item['key'] = sub_key
-                item['has_value'] = False
-                item['has_value'] = True
+                item = children.setdefault(
+                    key_name, dict(type="", children=collections.OrderedDict())
+                )
+                children = item["children"]
+                item["name"] = key_name
+                item["key"] = sub_key
+                item["has_value"] = False
+                item["has_value"] = True
         self.key_items = fill_item(self, root_children)
 
     def __on_key_renamed(self, old_item, new_item):
@@ -86,7 +100,7 @@ class RedisItem(QTreeWidgetItem):
             item.rename(new_key, label)
 
     def __on_keys_deleted(self):
-        print('update')
+        print("update")
         self.update()
 
     @property
@@ -95,10 +109,9 @@ class RedisItem(QTreeWidgetItem):
 
 
 class KeyItem(QTreeWidgetItem):
-
     def __init__(self, key, data, parent):
         super(KeyItem, self).__init__(parent, [key])
-        icon = QIcon(_key_icon) if data['has_value'] else QIcon.fromTheme('folder')
+        icon = QIcon(_key_icon) if data["has_value"] else QIcon.fromTheme("folder")
         self.setIcon(0, icon)
         self.setFont(3, QFont("Monospace"))
         self.__data = data
@@ -111,16 +124,16 @@ class KeyItem(QTreeWidgetItem):
         return root
 
     def rename(self, key, label):
-        self.__data['key'] = key
+        self.__data["key"] = key
         self.setText(0, label)
 
     @property
     def key(self):
-        return self.__data.get('key')
+        return self.__data.get("key")
 
     @property
     def has_value(self):
-        return self.__data.get('has_value', False)
+        return self.__data.get("has_value", False)
 
     @property
     def redis(self):
@@ -140,30 +153,37 @@ class RedisTree(QMainWindow):
     def __init__(self, parent=None):
         super(RedisTree, self).__init__(parent)
         self.load_ui()
-        self.__selected_items = dict(all_items=[], key_items=[], db_items=[],
-                                     db_keys={})
+        self.__selected_items = dict(
+            all_items=[], key_items=[], db_items=[], db_keys={}
+        )
         ui = self.ui
         header = ui.tree.header()
         header.resizeSection(0, 220)
         ui.open_db_action.setIcon(QIcon(_redis_icon))
-        add_menu = QMenu('Add')
-        ui.add_string_action = add_menu.addAction('string')
-        ui.add_list_action = add_menu.addAction('list')
-        ui.add_set_action = add_menu.addAction('set')
-        ui.add_hash_action = add_menu.addAction('hash')
+        add_menu = QMenu("Add")
+        ui.add_string_action = add_menu.addAction("string")
+        ui.add_list_action = add_menu.addAction("list")
+        ui.add_set_action = add_menu.addAction("set")
+        ui.add_hash_action = add_menu.addAction("hash")
         add_button = QToolButton()
         add_button.setMenu(add_menu)
         add_button.setPopupMode(QToolButton.InstantPopup)
-        add_button.setIcon(QIcon.fromTheme('list-add'))
+        add_button.setIcon(QIcon.fromTheme("list-add"))
         ui.add_key_action = ui.db_toolbar.insertWidget(ui.remove_key_action, add_button)
         ui.add_key_action.setEnabled(False)
 
         ui.tree.itemSelectionChanged.connect(self.__on_item_selection_changed)
         self.selectionChanged.connect(self.__on_selection_changed)
-        ui.add_string_action.triggered.connect(functools.partial(self.__on_add_key, 'string'))
-        ui.add_list_action.triggered.connect(functools.partial(self.__on_add_key, 'list'))
-        ui.add_set_action.triggered.connect(functools.partial(self.__on_add_key,  'set'))
-        ui.add_hash_action.triggered.connect(functools.partial(self.__on_add_key, 'hash'))
+        ui.add_string_action.triggered.connect(
+            functools.partial(self.__on_add_key, "string")
+        )
+        ui.add_list_action.triggered.connect(
+            functools.partial(self.__on_add_key, "list")
+        )
+        ui.add_set_action.triggered.connect(functools.partial(self.__on_add_key, "set"))
+        ui.add_hash_action.triggered.connect(
+            functools.partial(self.__on_add_key, "hash")
+        )
 
         ui.remove_key_action.triggered.connect(self.__on_remove_key)
         ui.touch_key_action.triggered.connect(self.__on_touch_key)
@@ -188,10 +208,10 @@ class RedisTree(QMainWindow):
         for key_item in key_items:
             db_keys[key_item.redis].append(key_item.key)
         si = self.__selected_items
-        si['all_items'] = items
-        si['key_items'] = key_items
-        si['db_items'] = db_items
-        si['db_keys'] = db_keys
+        si["all_items"] = items
+        si["key_items"] = key_items
+        si["db_items"] = db_items
+        si["db_keys"] = db_keys
         return si
 
     def __on_item_selection_changed(self):
@@ -200,9 +220,9 @@ class RedisTree(QMainWindow):
 
     def __on_selection_changed(self, selected):
         ui = self.ui
-        all_items = selected['all_items']
-        key_items = selected['key_items']
-        db_items = selected['db_items']
+        all_items = selected["all_items"]
+        key_items = selected["key_items"]
+        db_items = selected["db_items"]
         n_items, n_keys, n_dbs = map(len, (all_items, key_items, db_items))
         ui.add_key_action.setEnabled(n_items == 1)
         ui.remove_key_action.setEnabled(n_keys > 0)
@@ -226,7 +246,7 @@ class RedisTree(QMainWindow):
 
     def __on_update_db(self):
         db_items = set()
-        for item in self.selected_items['all_items']:
+        for item in self.selected_items["all_items"]:
             db_items.add(item.redis_item)
         for db_item in db_items:
             db_item.update()
@@ -236,21 +256,25 @@ class RedisTree(QMainWindow):
 
     def __on_touch_key(self):
         selected = self.selected_items
-        db_items = selected['db_items']
+        db_items = selected["db_items"]
 
     def __on_add_key(self, dtype):
         tree_item = self.ui.tree.selectedItems()[0]
         value = None
-        if dtype == 'string': value = ''
-        elif dtype == 'list': value = []
-        elif dtype == 'set': value = set()
-        elif dtype == 'hash': value = {}
-        item = Item(tree_item.redis, '', dtype, -1, value)
+        if dtype == "string":
+            value = ""
+        elif dtype == "list":
+            value = []
+        elif dtype == "set":
+            value = set()
+        elif dtype == "hash":
+            value = {}
+        item = Item(tree_item.redis, "", dtype, -1, value)
         self.addKey.emit(item)
 
     def __on_remove_key(self):
         selected = self.selected_items
-        key_items, db_keys = selected['key_items'], selected['db_keys']
+        key_items, db_keys = selected["key_items"], selected["db_keys"]
         for db, keys in db_keys.items():
             db.delete(*keys)
         self.ui.tree.clearSelection()
@@ -275,26 +299,30 @@ def main():
     import sys
     import argparse
 
-    parser = argparse.ArgumentParser(description='QRedis GUI')
-    parser.add_argument('--host', help='Server host name')
-    parser.add_argument('-p', '--port', help='Server port', type=int)
-    parser.add_argument('-s', '--sock', help='unix server socket')
-    parser.add_argument('-n', '--db', help='Database number')
-    parser.add_argument('--log-level', default='WARNING', help='log level',
-                        choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'])
+    parser = argparse.ArgumentParser(description="QRedis GUI")
+    parser.add_argument("--host", help="Server host name")
+    parser.add_argument("-p", "--port", help="Server port", type=int)
+    parser.add_argument("-s", "--sock", help="unix server socket")
+    parser.add_argument("-n", "--db", help="Database number")
+    parser.add_argument(
+        "--log-level",
+        default="WARNING",
+        help="log level",
+        choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"],
+    )
     args = parser.parse_args()
 
-    fmt = '%(asctime)-15s %(levelname)-5s %(name)s: %(message)s'
+    fmt = "%(asctime)-15s %(levelname)-5s %(name)s: %(message)s"
     level = getattr(logging, args.log_level.upper())
     logging.basicConfig(format=fmt, level=level)
 
     kwargs = {}
     if args.host is not None:
-        kwargs['host'] = args.host
+        kwargs["host"] = args.host
     if args.port is not None:
-        kwargs['port'] = args.port
+        kwargs["port"] = args.port
     if args.sock is not None:
-        kwargs['unix_socket_path'] = args.sock
+        kwargs["unix_socket_path"] = args.sock
     application = QApplication(sys.argv)
     window = RedisTree()
     if kwargs:
@@ -304,5 +332,5 @@ def main():
     sys.exit(application.exec_())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
