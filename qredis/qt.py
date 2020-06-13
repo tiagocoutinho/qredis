@@ -1,42 +1,17 @@
 # -*- coding: utf-8 -*-
 """Qt wrapper"""
 
-__V = 5
-try:
-    from PyQt5 import Qt
-except ImportError:
-    try:
-        from PyQt4 import Qt
-
-        __V = 4
-    except ImportError:
-        __V = None
-        raise ImportError("No Qt module accessible")
-
-if __V == 4:
-    import sip
-
-    sip.setapi("QString", 2)
-    sip.setapi("QVariant", 2)
-    from PyQt4.QtCore import *
-    from PyQt4.QtGui import *
-    from PyQt4.QtSvg import *
-    from PyQt4.uic import *
-else:
-    from PyQt5.QtCore import *
-    from PyQt5.QtGui import *
-    from PyQt5.QtSvg import *
-    from PyQt5.QtWidgets import *
-    from PyQt5.uic import *
-
-Signal = pyqtSignal
-
 import os
 import sys
 import functools
 
+from PyQt5.Qt import *
+from PyQt5.uic import loadUi
 
-class __UI(object):
+Signal = pyqtSignal
+
+
+class __UI:
     pass
 
 
