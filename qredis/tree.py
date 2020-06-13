@@ -1,21 +1,17 @@
 import os
-import sys
 import logging
 import functools
 import collections
 
 from .qt import (
-    Qt,
     QMainWindow,
     QApplication,
-    QTreeWidget,
     QTreeWidgetItem,
     QToolButton,
     QMessageBox,
     QIcon,
     QFont,
     QMenu,
-    QSize,
     Signal,
     ui_loadable,
 )
@@ -100,7 +96,6 @@ class RedisItem(QTreeWidgetItem):
             item.rename(new_key, label)
 
     def __on_keys_deleted(self):
-        print("update")
         self.update()
 
     @property
@@ -194,7 +189,7 @@ class RedisTree(QMainWindow):
         ui.flush_db_action.triggered.connect(self.__on_flush_db)
 
     def contextMenuEvent(self, event):
-        print(1)
+        pass
 
     @property
     def selected_items(self):
@@ -245,9 +240,9 @@ class RedisTree(QMainWindow):
         pass
 
     def __on_update_db(self):
-        db_items = set()
+        db_items = []
         for item in self.selected_items["all_items"]:
-            db_items.add(item.redis_item)
+            db_items.append(item.redis_item)
         for db_item in db_items:
             db_item.update()
 
