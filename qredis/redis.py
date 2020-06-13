@@ -56,6 +56,7 @@ class QRedis(QObject):
             parent, args = args[0], args[1:]
         else:
             parent = kwargs.pop("parent", None)
+        kwargs.setdefault("decode_responses", True)
         super(QRedis, self).__init__(parent)
         self.redis = Redis(*args, **kwargs)
         # self.__cache = {}
