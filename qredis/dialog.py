@@ -1,5 +1,5 @@
 from .redis import QRedis
-from .qt import Qt, QDialog, QRegExpValidator, QRegExp, ui_loadable
+from .qt import QDialog, QRegExpValidator, QRegExp, ui_loadable
 
 
 @ui_loadable
