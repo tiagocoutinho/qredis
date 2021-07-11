@@ -233,9 +233,12 @@ class RedisTree(QMainWindow):
         ui.close_db_action.setEnabled(n_dbs > 0)
 
     def __on_open_db(self):
-        redis = OpenRedisDialog.create_redis()
-        if redis:
-            self.add_redis(redis)
+        try:
+            redis = OpenRedisDialog.create_redis()
+            if redis:
+                self.add_redis(redis)
+        except Exception as error:
+            QMessageBox.warning(self, "Connection error!", repr(error))
 
     def __on_close_db(self):
         pass
