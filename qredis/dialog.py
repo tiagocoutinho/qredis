@@ -18,7 +18,7 @@ class OpenRedisDialog(QDialog):
     def _create_redis(self):
         if self.exec_() != QDialog.Accepted:
             return
-        kwargs = dict(db=self.ui.db.value())
+        kwargs = dict(db=self.ui.db.value(), client_name=self.ui.name.text())
         password = self.ui.password.text()
         if password:
             kwargs["password"] = password
