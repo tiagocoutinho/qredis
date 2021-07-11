@@ -2,7 +2,10 @@ from datetime import timedelta
 from functools import partial
 
 from .util import redis_str
-from .qt import Qt, QWidget, QMainWindow, QLabel, QStackedLayout, QTableWidgetItem, QTreeWidgetItem, QIntValidator, ui_loadable
+from .qt import (
+    Qt, QWidget, QMainWindow, QLabel, QStackedLayout, QMessageBox,
+    QTableWidgetItem, QTreeWidgetItem, QIntValidator, ui_loadable)
+
 
 ModifiedStyle = "background-color: rgb(255,200,200);"
 
@@ -290,13 +293,16 @@ class RedisDbEditor(QMainWindow):
         ui.name_label = QLabel("-----")
         ui.toolbar.addWidget(self.ui.name_label)
         ui.refresh_action.triggered.connect(self.__on_refresh)
-        ui.info_filter_edit.textChanged.connect(self.__on_info_filter_changed)
+        ui.info_filter.textChanged.connect(
+            partial(self.__on_filter_changed, ui.info_table))
+        ui.config_filter.textChanged.connect(
+            partial(self.__on_filter_changed, ui.config_table))
+        ui.config_table.itemChanged.connect(self.__on_config_changed)
 
     def __on_refresh(self):
         self.set_db(self._redis)
 
-    def __on_info_filter_changed(self, text):
-        table = self.ui.info_table
+    def __on_filter_changed(self, table, text):
         if text:
             hidden = lambda item: not text in item.text()
         else:
@@ -305,20 +311,62 @@ class RedisDbEditor(QMainWindow):
             item = table.item(row, 0)
             table.setRowHidden(row, hidden(item))
 
+    def __on_config_changed(self, item):
+        table = item.tableWidget()
+        key = table.item(item.row(), 0).text()
+        value = item.text()
+        result = QMessageBox.question(
+            self, "Are you sure?",
+            "Are you sure you want to change the value of {} to {}?".format(key, value))
+        if result != QMessageBox.Yes:
+            return
+        try:
+            self._redis.config_set(key, value)
+        except Exception as error:
+            value = self._redis.config_get(key)[key]
+            table.blockSignals(True)
+            item.setText(value)
+            table.blockSignals(False)
+            QMessageBox.warning(self, "Error changing config", repr(error))
+
+
     def set_db(self, redis):
         self._redis = redis
         info = self._redis.info()
+        config = self._redis.config_get()
         clients = self._redis.client_list()
         name, tooltip = redis_str(redis)
         name = "{} (v{})".format(name, info["redis_version"])
         self.ui.name_label.setText(name)
         self.ui.name_label.setToolTip(tooltip)
-        table = self.ui.info_table
-        table.clearContents()
-        table.setRowCount(len(info))
+
+        # Info
+        info_table = self.ui.info_table
+        info_table.clearContents()
+        info_table.setRowCount(len(info))
         for row, key in enumerate(sorted(info)):
-            table.setItem(row, 0, QTableWidgetItem(key))
-            table.setItem(row, 1, QTableWidgetItem(str(info[key])))
+            c0 = QTableWidgetItem(key)
+            c0.setFlags(c0.flags() & (~Qt.ItemIsEditable))
+            c1 = QTableWidgetItem(str(info[key]))
+            c1.setFlags(c0.flags() & (~Qt.ItemIsEditable))
+            info_table.setItem(row, 0, c0)
+            info_table.setItem(row, 1, c1)
+
+        # Config
+        config_table = self.ui.config_table
+        config_table.blockSignals(True)
+        config_table.clearContents()
+        config_table.setRowCount(len(config))
+        for row, key in enumerate(sorted(config)):
+            c0 = QTableWidgetItem(key)
+            c0.setFlags(c0.flags() & (~Qt.ItemIsEditable))
+            c1 = QTableWidgetItem(str(config[key]))
+            c1.setFlags(c0.flags() |Qt.ItemIsEditable)
+            config_table.setItem(row, 0, c0)
+            config_table.setItem(row, 1, c1)
+        config_table.blockSignals(False)
+
+        # Clients
         ctree = self.ui.client_tree
         ctree.clear()
         for client in clients:
@@ -329,7 +377,6 @@ class RedisDbEditor(QMainWindow):
             item = QTreeWidgetItem(ctree, [name])
             for key, value in client.items():
                 QTreeWidgetItem(item, [key, str(value)])
-#            ctree.addTopLevelItem(item)
 
 
 class RedisEditor(QWidget):
