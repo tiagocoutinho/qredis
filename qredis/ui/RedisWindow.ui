@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>619</width>
-    <height>477</height>
+    <width>769</width>
+    <height>574</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,16 @@
     <property name="spacing">
      <number>0</number>
     </property>
-    <property name="margin">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
      <number>0</number>
     </property>
     <item>
@@ -46,6 +55,7 @@
    <addaction name="open_db_action"/>
    <addaction name="separator"/>
    <addaction name="restart_action"/>
+   <addaction name="separator"/>
    <addaction name="quit_action"/>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -53,8 +63,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>619</width>
-     <height>27</height>
+     <width>769</width>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -88,8 +98,7 @@
   <action name="help_action">
    <property name="icon">
     <iconset theme="help">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>QRedis Help</string>
@@ -104,8 +113,7 @@
   <action name="about_action">
    <property name="icon">
     <iconset theme="help-about">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>About...</string>
@@ -117,8 +125,7 @@
   <action name="quit_action">
    <property name="icon">
     <iconset theme="application-exit">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Quit</string>
@@ -132,9 +139,8 @@
   </action>
   <action name="restart_action">
    <property name="icon">
-    <iconset theme="system-reboot">
-     <normaloff/>
-    </iconset>
+    <iconset theme="user-trash">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Restart</string>
@@ -149,8 +155,7 @@
   <action name="open_db_action">
    <property name="icon">
     <iconset theme="network-idle">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Open Redis</string>

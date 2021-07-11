@@ -42,7 +42,8 @@ class RedisItem(QTreeWidgetItem):
     SplitChars = ".:"
 
     def __init__(self, redis, filter=None, split_by=SplitChars, parent=None):
-        super(RedisItem, self).__init__(parent, [redis_str(redis)])
+        name, _ = redis_str(redis)
+        super(RedisItem, self).__init__(parent, [name])
         self.__filter = filter
         self.__split = split_by
         self.key_items = {}
@@ -50,6 +51,9 @@ class RedisItem(QTreeWidgetItem):
         self.redis = redis
         redis.keyRenamed.connect(self.__on_key_renamed)
         redis.keysDeleted.connect(self.__on_keys_deleted)
+
+    def toolTip(self, column):
+        return redis_str(self.redis)[1]
 
     @property
     def filter(self):

@@ -2,7 +2,7 @@ from datetime import timedelta
 from functools import partial
 
 from .util import redis_str
-from .qt import QWidget, QStackedLayout, QTableWidgetItem, QIntValidator, ui_loadable
+from .qt import Qt, QWidget, QMainWindow, QLabel, QStackedLayout, QTableWidgetItem, QTreeWidgetItem, QIntValidator, ui_loadable
 
 ModifiedStyle = "background-color: rgb(255,200,200);"
 
@@ -282,20 +282,54 @@ class RedisItemEditor(QWidget):
 
 
 @ui_loadable
-class RedisDbEditor(QWidget):
+class RedisDbEditor(QMainWindow):
     def __init__(self, parent=None):
         super(RedisDbEditor, self).__init__(parent)
         self.load_ui()
+        ui = self.ui
+        ui.name_label = QLabel("-----")
+        ui.toolbar.addWidget(self.ui.name_label)
+        ui.refresh_action.triggered.connect(self.__on_refresh)
+        ui.info_filter_edit.textChanged.connect(self.__on_info_filter_changed)
+
+    def __on_refresh(self):
+        self.set_db(self._redis)
+
+    def __on_info_filter_changed(self, text):
+        table = self.ui.info_table
+        if text:
+            hidden = lambda item: not text in item.text()
+        else:
+            hidden = lambda item: False
+        for row in range(table.rowCount()):
+            item = table.item(row, 0)
+            table.setRowHidden(row, hidden(item))
 
     def set_db(self, redis):
-        self.ui.name_label.setText(redis_str(redis))
+        self._redis = redis
+        info = self._redis.info()
+        clients = self._redis.client_list()
+        name, tooltip = redis_str(redis)
+        name = "{} (v{})".format(name, info["redis_version"])
+        self.ui.name_label.setText(name)
+        self.ui.name_label.setToolTip(tooltip)
         table = self.ui.info_table
         table.clearContents()
-        info = redis.info()
         table.setRowCount(len(info))
         for row, key in enumerate(sorted(info)):
             table.setItem(row, 0, QTableWidgetItem(key))
             table.setItem(row, 1, QTableWidgetItem(str(info[key])))
+        ctree = self.ui.client_tree
+        ctree.clear()
+        for client in clients:
+            name = str(client["id"])
+            if client["name"]:
+                name += " ({})".format(client["name"])
+            name += " @ {}".format(client["addr"])
+            item = QTreeWidgetItem(ctree, [name])
+            for key, value in client.items():
+                QTreeWidgetItem(item, [key, str(value)])
+#            ctree.addTopLevelItem(item)
 
 
 class RedisEditor(QWidget):
@@ -304,6 +338,7 @@ class RedisEditor(QWidget):
         self.empty = QWidget(self)
         self.item = RedisItemEditor(self)
         self.db = RedisDbEditor(self)
+        self.db.setWindowFlags(Qt.Widget)
         layout = QStackedLayout(self)
         layout.addWidget(self.empty)
         layout.addWidget(self.item)

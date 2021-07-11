@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
     app = QApplication([])
     i = QIcon.fromTheme("list-add")
-    p = i.pixmap(16, 16)
+    p = i.pixmap(128, 128)
     add_char_pixmap(p, "S")
     lbl = QLabel()
     lbl.setPixmap(p)

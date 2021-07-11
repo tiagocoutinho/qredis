@@ -4,20 +4,27 @@ import collections
 
 KeyItem = collections.namedtuple("KeyItem", "redis key type ttl value")
 
+REDIS_TEXT = """\
+Db: {db}
+Address: {addr}
+Client ID: {id}
+Client Name: {name}"""
 
-def redis_str(redis, filter=None):
+def redis_str(redis):
     info = redis.connection_pool.connection_kwargs
+    db = info["db"]
+    cid = redis.client_id()
+    cname = redis.client_getname()
     if "path" in info:  # unix socket
         addr = info["path"]
     elif "host" in info:
-        addr = "{0}:{1}".format(info["host"], info["port"])
+        addr = "{}:{}".format(info["host"], info["port"])
     else:
         addr = "???"
-    if filter:
-        name = "DB {0} @ {1}, filt={2}".format(info["db"], addr, filter)
-    else:
-        name = "DB {0} @ {1}".format(info["db"], addr)
-    return name
+    ctext = "{} - {}".format(cid, cname) if cname else str(cid)
+    text = "DB {} @ {} ({})".format(db, addr, ctext)
+    long_text = REDIS_TEXT.format(db=db, addr=addr, id=cid, name=cname or "---")
+    return text, long_text
 
 
 def redis_value(redis, key, dtype=None):
