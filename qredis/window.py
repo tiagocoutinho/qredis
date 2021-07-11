@@ -57,6 +57,7 @@ def main():
     parser.add_argument("-p", "--port", help="Server port", type=int)
     parser.add_argument("-s", "--sock", help="unix server socket")
     parser.add_argument("-n", "--db", type=int, help="Database number")
+    parser.add_argument("--name", default="qredis")
     parser.add_argument(
         "--log-level",
         default="WARNING",
@@ -69,7 +70,7 @@ def main():
     level = getattr(logging, args.log_level.upper())
     logging.basicConfig(format=fmt, level=level)
 
-    kwargs = {}
+    kwargs = dict(client_name=args.name)
     if args.host is not None:
         kwargs["host"] = args.host
     if args.port is not None:
