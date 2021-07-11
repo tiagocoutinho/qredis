@@ -373,7 +373,6 @@ class RedisDbEditor(QMainWindow):
             name = str(client["id"])
             if client["name"]:
                 name += " ({})".format(client["name"])
-            name += " @ {}".format(client["addr"])
             item = QTreeWidgetItem(ctree, [name])
             for key, value in client.items():
                 QTreeWidgetItem(item, [key, str(value)])
