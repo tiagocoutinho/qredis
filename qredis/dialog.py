@@ -17,7 +17,7 @@ class OpenRedisDialog(QDialog):
 
     def _create_redis(self):
         if self.exec_() != QDialog.Accepted:
-            return
+            return None, None
         kwargs = dict(db=self.ui.db.value())
         client_name = self.ui.name.text()
         user = self.ui.user.text()
@@ -40,7 +40,7 @@ class OpenRedisDialog(QDialog):
                 kwargs["host"] = host
         else:
             kwargs["unix_socket_path"] = self.ui.socket.text()
-        return QRedis(**kwargs)
+        return QRedis(**kwargs), dict(filter=self.ui.filter.text())
 
     @classmethod
     def create_redis(cls):

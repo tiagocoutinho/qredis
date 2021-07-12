@@ -29,18 +29,17 @@ class RedisWindow(QMainWindow):
         ui.tab_windows_action.toggled.connect(self.__on_tab_toggled)
 
     def __on_open_db(self):
-        redis = OpenRedisDialog.create_redis()
+        redis, opts = OpenRedisDialog.create_redis()
         if redis:
-            self.add_redis_panel(redis)
+            self.add_redis_panel(redis, opts)
 
     def __on_tab_toggled(self, checked):
         mdi = self.ui.mdi
         mdi.setViewMode(mdi.TabbedView if checked else mdi.SubWindowView)
 
-    def add_redis_panel(self, *redis):
+    def add_redis_panel(self, redis, opts):
         panel = RedisPanel(parent=self)
-        for r in redis:
-            panel.add_redis(r)
+        panel.add_redis(redis, opts)
         window = self.ui.mdi.addSubWindow(panel)
         window.setWindowTitle("Redis")
         if len(self.ui.mdi.subWindowList()) == 1:
@@ -57,7 +56,8 @@ def main():
     parser.add_argument("-p", "--port", help="Server port", type=int)
     parser.add_argument("-s", "--sock", help="unix server socket")
     parser.add_argument("-n", "--db", type=int, help="Database number")
-    parser.add_argument("--name", default="qredis")
+    parser.add_argument("--name", default="qredis", help="Client name")
+    parser.add_argument("-f", "--filter", default="*", help="Key filter")
     parser.add_argument(
         "--log-level",
         default="WARNING",
@@ -79,11 +79,12 @@ def main():
         kwargs["unix_socket_path"] = args.sock
     if args.db is not None:
         kwargs["db"] = args.db
+    opts = dict(filter=args.filter)
     application = QApplication(sys.argv)
     window = RedisWindow()
     if kwargs:
         r = QRedis(**kwargs)
-        window.add_redis_panel(r)
+        window.add_redis_panel(r, opts)
     window.show()
     sys.exit(application.exec_())
 

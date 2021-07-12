@@ -234,9 +234,9 @@ class RedisTree(QMainWindow):
 
     def __on_open_db(self):
         try:
-            redis = OpenRedisDialog.create_redis()
+            redis, opts = OpenRedisDialog.create_redis()
             if redis:
-                self.add_redis(redis)
+                self.add_redis(redis, opts)
         except Exception as error:
             QMessageBox.warning(self, "Connection error!", repr(error))
 
@@ -287,8 +287,8 @@ class RedisTree(QMainWindow):
         except ConnectionError as ce:
             QMessageBox.critical(self, "Connection Error", str(ce))
 
-    def add_redis(self, db):
-        item = RedisItem(db)
+    def add_redis(self, db, opts):
+        item = RedisItem(db, **opts)
         self.ui.tree.addTopLevelItem(item)
         try:
             item.update()

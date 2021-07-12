@@ -34,5 +34,5 @@ class RedisPanel(QSplitter):
                 return
         self.editor.set_empty()
 
-    def add_redis(self, redis):
-        self.tree.add_redis(redis)
+    def add_redis(self, redis, opts):
+        self.tree.add_redis(redis, opts)

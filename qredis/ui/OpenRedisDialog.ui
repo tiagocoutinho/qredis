@@ -7,36 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>332</width>
-    <height>313</height>
+    <height>324</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Open Redis Connection</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout" columnstretch="0,1">
-   <item row="3" column="1">
-    <widget class="QSpinBox" name="db"/>
-   </item>
-   <item row="7" column="0" colspan="2">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QLineEdit" name="name">
-     <property name="text">
-      <string>qredis</string>
-     </property>
-     <property name="clearButtonEnabled">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
+  <layout class="QGridLayout" name="gridLayout" columnstretch="0,0">
    <item row="1" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
@@ -80,14 +57,7 @@
      </layout>
     </widget>
    </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="db_label">
-     <property name="text">
-      <string>Db:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="0">
+   <item row="8" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -101,6 +71,70 @@
     </spacer>
    </item>
    <item row="5" column="1">
+    <widget class="QLineEdit" name="user">
+     <property name="toolTip">
+      <string>Valid only if connecting to a redis &gt;= 6 server</string>
+     </property>
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="name_label">
+     <property name="text">
+      <string>Client name:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QLineEdit" name="name">
+     <property name="text">
+      <string>qredis</string>
+     </property>
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <widget class="QLineEdit" name="filter">
+     <property name="text">
+      <string>*</string>
+     </property>
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="filter_label">
+     <property name="text">
+      <string>Key filter:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QSpinBox" name="db"/>
+   </item>
+   <item row="9" column="0" colspan="2">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="password_label">
+     <property name="text">
+      <string>Password:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1">
     <widget class="QLineEdit" name="password">
      <property name="echoMode">
       <enum>QLineEdit::Password</enum>
@@ -110,21 +144,7 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="name_label">
-     <property name="text">
-      <string>Client name:</string>
-     </property>
-    </widget>
-   </item>
    <item row="5" column="0">
-    <widget class="QLabel" name="password_label">
-     <property name="text">
-      <string>Password:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
     <widget class="QLabel" name="user_label">
      <property name="toolTip">
       <string>Valid only if connecting to a redis &gt;= 6 server</string>
@@ -134,13 +154,10 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="1">
-    <widget class="QLineEdit" name="user">
-     <property name="toolTip">
-      <string>Valid only if connecting to a redis &gt;= 6 server</string>
-     </property>
-     <property name="clearButtonEnabled">
-      <bool>true</bool>
+   <item row="3" column="0">
+    <widget class="QLabel" name="db_label">
+     <property name="text">
+      <string>Db:</string>
      </property>
     </widget>
    </item>
