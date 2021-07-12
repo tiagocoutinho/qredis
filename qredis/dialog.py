@@ -40,7 +40,11 @@ class OpenRedisDialog(QDialog):
                 kwargs["host"] = host
         else:
             kwargs["unix_socket_path"] = self.ui.socket.text()
-        return QRedis(**kwargs), dict(filter=self.ui.filter.text())
+        opts = dict(
+            filter=self.ui.filter.text(),
+            split_by=self.ui.splitter.text(),
+        )
+        return QRedis(**kwargs), opts
 
     @classmethod
     def create_redis(cls):
