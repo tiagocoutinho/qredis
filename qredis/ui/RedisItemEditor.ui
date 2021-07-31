@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>389</width>
-    <height>208</height>
+    <width>498</width>
+    <height>347</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -29,49 +29,15 @@
    <property name="spacing">
     <number>3</number>
    </property>
-   <item row="1" column="0">
-    <widget class="QLabel" name="ttl_label">
-     <property name="text">
-      <string>TTL:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="key_label">
-     <property name="text">
-      <string>Key:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1" colspan="2">
+   <item row="1" column="1" colspan="3">
     <widget class="QLineEdit" name="ttl_value">
+     <property name="frame">
+      <bool>true</bool>
+     </property>
      <property name="placeholderText">
       <string>-----</string>
      </property>
     </widget>
-   </item>
-   <item row="1" column="3">
-    <widget class="QToolButton" name="persist_button">
-     <property name="toolTip">
-      <string>Remove expiration from key</string>
-     </property>
-     <property name="text">
-      <string>Persist</string>
-     </property>
-     <property name="icon">
-      <iconset theme="go-bottom">
-       <normaloff>.</normaloff>.</iconset>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>16</width>
-       <height>16</height>
-      </size>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1" colspan="3">
-    <widget class="QLineEdit" name="key_name"/>
    </item>
    <item row="3" column="0" colspan="4">
     <widget class="QWidget" name="widget" native="true">
@@ -92,13 +58,78 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QPushButton" name="delete_button">
-        <property name="statusTip">
-         <string>Delete key from database</string>
+       <widget class="QPushButton" name="apply_button">
+        <property name="toolTip">
+         <string>Apply</string>
+        </property>
+        <property name="text">
+         <string>Apply</string>
         </property>
         <property name="icon">
-         <iconset theme="edit-delete">
+         <iconset theme="document-save">
+          <normaloff>../../</normaloff>../../</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="refresh_button">
+        <property name="toolTip">
+         <string>Refresh key data (value, ttl)</string>
+        </property>
+        <property name="text">
+         <string>Refresh</string>
+        </property>
+        <property name="icon">
+         <iconset theme="view-refresh">
+          <normaloff>../../</normaloff>../../</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="undo_button">
+        <property name="toolTip">
+         <string>Revert changes</string>
+        </property>
+        <property name="text">
+         <string>Undo</string>
+        </property>
+        <property name="icon">
+         <iconset theme="document-revert">
           <normaloff>.</normaloff>.</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="touch_button">
+        <property name="toolTip">
+         <string>Alters the last access time of the key</string>
+        </property>
+        <property name="text">
+         <string>Touch</string>
+        </property>
+        <property name="icon">
+         <iconset theme="view-restore">
+          <normaloff>.</normaloff>.</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="persist_button">
+        <property name="toolTip">
+         <string>Remove expiration from key</string>
+        </property>
+        <property name="text">
+         <string>Persist</string>
+        </property>
+        <property name="icon">
+         <iconset theme="go-bottom">
+          <normaloff>.</normaloff>.</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>16</width>
+          <height>16</height>
+         </size>
         </property>
        </widget>
       </item>
@@ -116,48 +147,16 @@
        </spacer>
       </item>
       <item>
-       <widget class="QToolButton" name="touch_button">
-        <property name="toolTip">
-         <string>Alters the last access time of the key</string>
+       <widget class="QPushButton" name="delete_button">
+        <property name="statusTip">
+         <string>Delete key from database</string>
         </property>
         <property name="text">
-         <string>Touch</string>
+         <string>Delete</string>
         </property>
         <property name="icon">
-         <iconset theme="view-restore"/>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="refresh_button">
-        <property name="toolTip">
-         <string>Refresh key data (value, ttl)</string>
-        </property>
-        <property name="icon">
-         <iconset theme="view-refresh">
-          <normaloff>../../</normaloff>../../</iconset>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="revert_button">
-        <property name="toolTip">
-         <string>Revert changes</string>
-        </property>
-        <property name="icon">
-         <iconset theme="document-revert">
+         <iconset theme="edit-delete">
           <normaloff>.</normaloff>.</iconset>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="apply_button">
-        <property name="toolTip">
-         <string>Apply</string>
-        </property>
-        <property name="icon">
-         <iconset theme="document-save">
-          <normaloff>../../</normaloff>../../</iconset>
         </property>
        </widget>
       </item>
@@ -166,6 +165,23 @@
    </item>
    <item row="2" column="0" colspan="4">
     <widget class="QWidget" name="type_editor" native="true"/>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="key_label">
+     <property name="text">
+      <string>Key:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" colspan="3">
+    <widget class="QLineEdit" name="key_name"/>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="ttl_label">
+     <property name="text">
+      <string>TTL:</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

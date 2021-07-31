@@ -183,13 +183,14 @@ class RedisItemEditor(QWidget):
         ui.ttl_value.returnPressed.connect(self.__on_ttl_applied)
         ui.apply_button.clicked.connect(self.__on_apply)
         ui.refresh_button.clicked.connect(self.__on_refresh)
+        ui.undo_button.clicked.connect(self.__on_undo)
         ui.persist_button.clicked.connect(self.__on_persist)
         ui.delete_button.clicked.connect(self.__on_delete)
 
     def __on_apply(self):
         editor = self.ui.type_editor.layout().currentWidget()
         item = editor.get_item()
-        item = self.__item._replace(value=item.value)
+        item = self.__item._replace(value=item.value, ttl=item.ttl)
         if self.__original_item.key:
             self.__on_key_name_applied()
         item.redis[item.key] = item.value
@@ -228,23 +229,31 @@ class RedisItemEditor(QWidget):
                 self.__original_item = original_item._replace(ttl=item.ttl)
             except Exception as e:
                 import traceback
-
                 traceback.print_exc()
                 print("error", str(e))
             self.__update()
 
     def __on_refresh(self):
-        self.set_item(self.__item)
+        item = self.__original_item
+        if item is not None:
+            try:
+                item = item.redis[item.key]
+            except KeyError:
+                item = None
+        self.set_item(item)
+
+    def __on_undo(self):
+        self.set_item(self.__original_item)
 
     def __on_persist(self):
         try:
-            self.__item.redis.persist(self.__item.key)
+            self.__original_item.redis.persist(self.__item.key)
         except Exception as e:
             print("error", str(e))
 
     def __on_delete(self):
         try:
-            self.__item.redis.delete(self.__item.key)
+            self.__original_item.redis.delete(self.__item.key)
         except Exception as e:
             print("error", str(e))
 
@@ -328,7 +337,6 @@ class RedisDbEditor(QMainWindow):
             item.setText(value)
             table.blockSignals(False)
             QMessageBox.warning(self, "Error changing config", repr(error))
-
 
     def set_db(self, redis):
         self._redis = redis

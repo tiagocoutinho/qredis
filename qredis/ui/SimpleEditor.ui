@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>327</width>
-    <height>107</height>
+    <width>463</width>
+    <height>287</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,16 @@
    <property name="spacing">
     <number>3</number>
    </property>
-   <property name="margin">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <item>
@@ -45,8 +54,7 @@
       <widget class="QToolButton" name="incr_button">
        <property name="icon">
         <iconset theme="go-up">
-         <normaloff/>
-        </iconset>
+         <normaloff>.</normaloff>.</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -60,8 +68,7 @@
       <widget class="QToolButton" name="decr_button">
        <property name="icon">
         <iconset theme="go-down">
-         <normaloff/>
-        </iconset>
+         <normaloff>.</normaloff>.</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -90,7 +97,7 @@
         </spacer>
        </item>
        <item>
-        <widget class="QToolButton" name="revert_button">
+        <widget class="QPushButton" name="revert_button">
          <property name="toolTip">
           <string>Revert</string>
          </property>
@@ -99,8 +106,7 @@
          </property>
          <property name="icon">
           <iconset theme="document-revert">
-           <normaloff/>
-          </iconset>
+           <normaloff>.</normaloff>.</iconset>
          </property>
         </widget>
        </item>

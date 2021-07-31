@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>433</width>
-    <height>247</height>
+    <width>451</width>
+    <height>382</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,28 +18,63 @@
     <property name="spacing">
      <number>0</number>
     </property>
-    <property name="margin">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
      <number>0</number>
     </property>
     <item>
-     <widget class="QTreeWidget" name="tree">
-      <property name="frameShape">
-       <enum>QFrame::NoFrame</enum>
-      </property>
-      <property name="alternatingRowColors">
+     <widget class="QWidget" name="filter_container" native="true">
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QLineEdit" name="filter_edit">
+         <property name="placeholderText">
+          <string>filter keys...</string>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QTreeView" name="tree">
+      <property name="dragEnabled">
        <bool>true</bool>
       </property>
       <property name="selectionMode">
        <enum>QAbstractItemView::ExtendedSelection</enum>
       </property>
-      <attribute name="headerVisible">
-       <bool>false</bool>
-      </attribute>
-      <column>
-       <property name="text">
-        <string notr="true">1</string>
-       </property>
-      </column>
+      <property name="selectionBehavior">
+       <enum>QAbstractItemView::SelectItems</enum>
+      </property>
+      <property name="uniformRowHeights">
+       <bool>true</bool>
+      </property>
+      <property name="headerHidden">
+       <bool>true</bool>
+      </property>
      </widget>
     </item>
    </layout>
@@ -63,8 +98,6 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="open_db_action"/>
-   <addaction name="close_db_action"/>
    <addaction name="flush_db_action"/>
    <addaction name="update_db_action"/>
    <addaction name="separator"/>
@@ -79,8 +112,7 @@
    </property>
    <property name="icon">
     <iconset theme="list-remove">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Remove key</string>
@@ -95,8 +127,7 @@
    </property>
    <property name="icon">
     <iconset theme="go-bottom">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Persist</string>
@@ -111,8 +142,7 @@
    </property>
    <property name="icon">
     <iconset theme="go-down">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Touch key</string>
@@ -122,13 +152,9 @@
    </property>
   </action>
   <action name="flush_db_action">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
    <property name="icon">
     <iconset theme="edit-clear">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Flush DB</string>
@@ -143,8 +169,7 @@
    </property>
    <property name="icon">
     <iconset theme="edit-copy">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Copy key</string>
@@ -152,15 +177,14 @@
    <property name="toolTip">
     <string>Copies selected key value into a new key</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
   </action>
   <action name="update_db_action">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
    <property name="icon">
     <iconset theme="view-refresh">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Update key</string>
@@ -170,35 +194,6 @@
    </property>
    <property name="statusTip">
     <string>Update</string>
-   </property>
-  </action>
-  <action name="open_db_action">
-   <property name="icon">
-    <iconset theme="network-idle">
-     <normaloff/>
-    </iconset>
-   </property>
-   <property name="text">
-    <string>Open DB</string>
-   </property>
-   <property name="toolTip">
-    <string>Opens a new redis DB connection</string>
-   </property>
-  </action>
-  <action name="close_db_action">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset theme="network-offline">
-     <normaloff/>
-    </iconset>
-   </property>
-   <property name="text">
-    <string>Close DB</string>
-   </property>
-   <property name="toolTip">
-    <string>Closes selected redis DB connection(s)</string>
    </property>
   </action>
  </widget>

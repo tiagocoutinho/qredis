@@ -2,13 +2,24 @@ import os
 import sys
 import collections
 
-KeyItem = collections.namedtuple("KeyItem", "redis key type ttl value")
 
 REDIS_TEXT = """\
 Db: {db}
 Address: {addr}
 Client ID: {id}
 Client Name: {name}"""
+
+
+def toolTip(item):
+    return f"""\
+name: {item.key}
+type: {item.type}
+TTL: {item.ttl}"""
+
+
+KeyItem = collections.namedtuple("KeyItem", "redis key type ttl value")
+KeyItem.toolTip = toolTip
+
 
 def redis_str(redis):
     info = redis.connection_pool.connection_kwargs

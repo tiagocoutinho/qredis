@@ -1,8 +1,8 @@
 import os
 import logging
 
-from .qt import QMainWindow, QApplication, QIcon, ui_loadable
-from .util import restart
+from .qt import QMainWindow, QApplication, QIcon, QActionGroup, QMdiArea, Qt, ui_loadable
+from .util import restart, redis_str
 from .redis import QRedis
 from .panel import RedisPanel
 from .dialog import AboutDialog, OpenRedisDialog
@@ -22,28 +22,42 @@ class RedisWindow(QMainWindow):
         self.about_dialog = AboutDialog()
 
         ui.open_db_action.setIcon(redis_icon)
-        ui.open_db_action.triggered.connect(self.__on_open_db)
+        ui.open_db_action.triggered.connect(self._on_open_db)
         ui.restart_action.triggered.connect(restart)
         ui.quit_action.triggered.connect(QApplication.quit)
         ui.about_action.triggered.connect(lambda: self.about_dialog.exec_())
-        ui.tab_windows_action.toggled.connect(self.__on_tab_toggled)
 
-    def __on_open_db(self):
-        redis, opts = OpenRedisDialog.create_redis()
+        ui.window_mode_action_group = group = QActionGroup(self)
+        ui.tabbed_view_action.setActionGroup(group)
+        ui.tabbed_view_action.setData(QMdiArea.TabbedView)
+        ui.window_view_action.setActionGroup(group)
+        ui.window_view_action.setData(QMdiArea.SubWindowView)
+        group.triggered.connect(self._on_switch_window_mode)
+        ui.mdi.setViewMode(QMdiArea.TabbedView)
+        ui.tabbed_view_action.setChecked(True)
+
+    def _on_open_db(self):
+        redis, opts = OpenRedisDialog.create_redis(parent=self)
         if redis:
             self.add_redis_panel(redis, opts)
 
-    def __on_tab_toggled(self, checked):
+    def _on_switch_window_mode(self, action):
         mdi = self.ui.mdi
-        mdi.setViewMode(mdi.TabbedView if checked else mdi.SubWindowView)
+        mode = action.data()
+        mdi.setViewMode(mode)
+        self.ui.cascade_action.setEnabled(mode != QMdiArea.TabbedView)
+        self.ui.tile_action.setEnabled(mode != QMdiArea.TabbedView)
 
     def add_redis_panel(self, redis, opts):
-        panel = RedisPanel(parent=self)
-        panel.add_redis(redis, opts)
+        name, _ = redis_str(redis)
+        panel = RedisPanel(redis)
         window = self.ui.mdi.addSubWindow(panel)
-        window.setWindowTitle("Redis")
-        if len(self.ui.mdi.subWindowList()) == 1:
-            window.showMaximized()
+        window.setAttribute(Qt.WA_DeleteOnClose)
+        window.setWindowTitle(name)
+        window.setVisible(True)
+        window.showMaximized()
+        window.showSystemMenu()
+        self.ui.mdi.setActiveSubWindow(window)
         return window
 
 
@@ -83,7 +97,7 @@ def main():
     opts = dict(filter=args.key_filter, split_by=args.key_split)
     application = QApplication(sys.argv)
     window = RedisWindow()
-    if kwargs:
+    if len(kwargs) > 1:
         r = QRedis(**kwargs)
         window.add_redis_panel(r, opts)
     window.show()

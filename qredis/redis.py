@@ -1,6 +1,6 @@
 import collections
 
-from redis import Redis, ConnectionError
+from redis import Redis
 
 from .util import KeyItem
 from .qt import QObject, Signal
@@ -59,7 +59,6 @@ class QRedis(QObject):
         kwargs.setdefault("decode_responses", True)
         super(QRedis, self).__init__(parent)
         self.redis = Redis(*args, **kwargs)
-        # self.__cache = {}
 
     def __getattr__(self, name):
         return getattr(self.redis, name)

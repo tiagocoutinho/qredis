@@ -47,9 +47,9 @@ class OpenRedisDialog(QDialog):
         return QRedis(**kwargs), opts
 
     @classmethod
-    def create_redis(cls):
+    def create_redis(cls, parent=None):
         if cls.Dialog is None:
-            cls.Dialog = cls()
+            cls.Dialog = cls(parent=parent)
         return cls.Dialog._create_redis()
 
 

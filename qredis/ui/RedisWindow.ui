@@ -32,7 +32,19 @@
     </property>
     <item>
      <widget class="QMdiArea" name="mdi">
+      <property name="background">
+       <brush brushstyle="Dense6Pattern">
+        <color alpha="255">
+         <red>159</red>
+         <green>159</green>
+         <blue>159</blue>
+        </color>
+       </brush>
+      </property>
       <property name="tabsClosable">
+       <bool>true</bool>
+      </property>
+      <property name="tabsMovable">
        <bool>true</bool>
       </property>
      </widget>
@@ -88,8 +100,13 @@
     <property name="title">
      <string>&amp;Window</string>
     </property>
-    <addaction name="tab_windows_action"/>
+    <addaction name="tabbed_view_action"/>
+    <addaction name="window_view_action"/>
     <addaction name="separator"/>
+    <addaction name="cascade_action"/>
+    <addaction name="tile_action"/>
+    <addaction name="separator"/>
+    <addaction name="close_all_action"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuWindow"/>
@@ -167,7 +184,7 @@
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="tab_windows_action">
+  <action name="tabbed_view_action">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -175,13 +192,97 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Tabbed windows</string>
+    <string>Tabs</string>
    </property>
    <property name="toolTip">
     <string>Sub-windows tabbed</string>
    </property>
   </action>
+  <action name="window_view_action">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Floating</string>
+   </property>
+   <property name="toolTip">
+    <string>Show plots in floating windows</string>
+   </property>
+  </action>
+  <action name="close_all_action">
+   <property name="text">
+    <string>Close all</string>
+   </property>
+   <property name="toolTip">
+    <string>Close all sub-windows</string>
+   </property>
+  </action>
+  <action name="cascade_action">
+   <property name="text">
+    <string>Cascade</string>
+   </property>
+   <property name="toolTip">
+    <string>Arrange windows in a cascade pattern</string>
+   </property>
+  </action>
+  <action name="tile_action">
+   <property name="text">
+    <string>Tile</string>
+   </property>
+   <property name="toolTip">
+    <string>Arrange windows in a tile pattern</string>
+   </property>
+  </action>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>tile_action</sender>
+   <signal>triggered()</signal>
+   <receiver>mdi</receiver>
+   <slot>tileSubWindows()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>384</x>
+     <y>316</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>close_all_action</sender>
+   <signal>triggered()</signal>
+   <receiver>mdi</receiver>
+   <slot>closeAllSubWindows()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>384</x>
+     <y>316</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cascade_action</sender>
+   <signal>triggered()</signal>
+   <receiver>mdi</receiver>
+   <slot>cascadeSubWindows()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>384</x>
+     <y>316</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
