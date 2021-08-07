@@ -1,9 +1,46 @@
+import pickle
 import collections
 
+import msgpack
+import msgpack_numpy
 from redis import Redis
 
 from .util import KeyItem
 from .qt import QObject, Signal
+
+
+def msgpack_pack(data):
+    return msgpack.packb(data, use_bin_type=True, default=msgpack_numpy.encode)
+
+
+def msgpack_unpack(buff):
+    return msgpack.unpackb(buff, raw=False, object_hook=msgpack_numpy.decode)
+
+
+def decode_utf8(v):
+    return v.decode()
+
+
+def decode_pickle(v):
+    return str(pickle.loads(v))
+
+
+def decode_msgpack(v):
+    return str(msgpack_unpack(v))
+
+
+DECODES = [(decode_utf8, "utf-8"),
+           (decode_pickle, "pickle"),
+           (decode_msgpack, "msgpack"),
+           (str, "raw")]
+
+
+def decode(value):
+    for decoder, dtype in DECODES:
+        try:
+            return decoder(value)
+        except Exception:
+            continue
 
 
 def _set(redis, key, value):
@@ -33,43 +70,36 @@ class QRedis(QObject):
         set: "set",
     }
 
-    GET_TYPE_MAP = {
-        "none": lambda r, v: None,
-        "string": lambda r, k: r.redis.get(k),
-        "hash": lambda r, k: r.redis.hgetall(k),
-        "list": lambda r, k: r.redis.lrange(k, 0, -1),
-        "set": lambda r, k: r.redis.smembers(k),
-    }
-
-    SET_TYPE_MAP = collections.defaultdict(
-        lambda: lambda r, k, v: _set(r.redis, k, v),
-        {
-            type(None): lambda r, k, v: r.delete(k),
-            dict: lambda r, k, v: r.redis.hmset(k, v),
-            list: lambda r, k, v: _set_list(r.redis, k, v),
-            set: lambda r, k, v: _set_set(r.redis, k, v),
-        },
-    )
-
     def __init__(self, *args, **kwargs):
         if args:
             parent, args = args[0], args[1:]
         else:
             parent = kwargs.pop("parent", None)
-        kwargs.setdefault("decode_responses", True)
+        #kwargs.setdefault("decode_responses", True)
         super(QRedis, self).__init__(parent)
+
+        self._get_type_map = {
+            "none": lambda v: None,
+            "string": self._get,
+            "hash": self._hgetall,
+            "list": self._lgetall,
+            "set": self._sgetall,
+        }
+
+        self._set_type_map = collections.defaultdict(
+            lambda: lambda r, k, v: _set(r.redis, k, v),
+            {
+                type(None): lambda k, v: self.delete(k),
+                dict: lambda k, v: self.redis.hmset(k, v),
+                list: lambda k, v: _set_list(self.redis, k, v),
+                set: lambda k, v: _set_set(self.redis, k, v),
+            },
+        )
+
         self.redis = Redis(*args, **kwargs)
 
     def __getattr__(self, name):
         return getattr(self.redis, name)
-
-    def get(self, key, default=None):
-        if not self.exists(key):
-            return default
-        dtype, ttl = self.type(key), self.ttl(key)
-        ttl = -1 if ttl is None else ttl  # handle redis < 2.8
-        value = self.GET_TYPE_MAP[dtype](self, key)
-        return KeyItem(self, key, dtype, ttl, value)
 
     def __getitem__(self, key):
         value = self.get(key)
@@ -78,10 +108,36 @@ class QRedis(QObject):
         return value
 
     def __setitem__(self, key, value):
-        self.SET_TYPE_MAP[type(value)](self, key, value)
+        self._set_type_map[type(value)](self, key, value)
 
     def __delitem__(self, key):
         self.delete(key)
+
+    def _get(self, key):
+        return decode(self.redis.get(key))
+
+    def _hgetall(self, key):
+        return {decode(k): decode(v) for k, v in self.redis.hgetall(key).items()}
+
+    def _lgetall(self, key):
+        return [decode(i) for i in self.redis.lrange(key, 0, -1)]
+
+    def _sgetall(self, key):
+        return {decode(i) for i in self.redis.smembers(key)}
+
+    def get(self, key, default=None):
+        if not self.exists(key):
+            return default
+        dtype, ttl = self.type(key), self.ttl(key)
+        ttl = -1 if ttl is None else ttl  # handle redis < 2.8
+        value = self._get_type_map[dtype](key)
+        return KeyItem(self, key, dtype, ttl, value)
+
+    def type(self, name):
+        return self.redis.type(name).decode()
+
+    def keys(self, pattern):
+        return [k.decode() for k in self.redis.keys(pattern)]
 
     def has_key(self, key):
         return self.exists(key)

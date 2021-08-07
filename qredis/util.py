@@ -1,5 +1,6 @@
 import os
 import sys
+import textwrap
 import collections
 
 
@@ -11,10 +12,12 @@ Client Name: {name}"""
 
 
 def toolTip(item):
+    value = textwrap.shorten(str(item.value), 80)
     return f"""\
 name: {item.key}
 type: {item.type}
-TTL: {item.ttl}"""
+TTL: {item.ttl}
+Value: {value}"""
 
 
 KeyItem = collections.namedtuple("KeyItem", "redis key type ttl value")
