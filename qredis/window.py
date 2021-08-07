@@ -33,7 +33,7 @@ class RedisWindow(QMainWindow):
         ui.window_view_action.setActionGroup(group)
         ui.window_view_action.setData(QMdiArea.SubWindowView)
         group.triggered.connect(self._on_switch_window_mode)
-        ui.mdi.setViewMode(QMdiArea.TabbedView)
+        self.set_view_mode(QMdiArea.TabbedView)
         ui.tabbed_view_action.setChecked(True)
 
     def _on_open_db(self):
@@ -41,12 +41,15 @@ class RedisWindow(QMainWindow):
         if redis:
             self.add_redis_panel(redis, opts)
 
-    def _on_switch_window_mode(self, action):
+    def set_view_mode(self, mode):
         mdi = self.ui.mdi
-        mode = action.data()
         mdi.setViewMode(mode)
         self.ui.cascade_action.setEnabled(mode != QMdiArea.TabbedView)
         self.ui.tile_action.setEnabled(mode != QMdiArea.TabbedView)
+
+    def _on_switch_window_mode(self, action):
+        mode = action.data()
+        self.set_view_mode(mode)
 
     def add_redis_panel(self, redis, opts):
         name, _ = redis_str(redis)
