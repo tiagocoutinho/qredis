@@ -177,6 +177,18 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>tcp_option</tabstop>
+  <tabstop>tcp</tabstop>
+  <tabstop>socket_option</tabstop>
+  <tabstop>socket</tabstop>
+  <tabstop>db</tabstop>
+  <tabstop>name</tabstop>
+  <tabstop>user</tabstop>
+  <tabstop>password</tabstop>
+  <tabstop>filter</tabstop>
+  <tabstop>splitter</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
