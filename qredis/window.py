@@ -59,7 +59,6 @@ class RedisWindow(QMainWindow):
         window.setWindowTitle(name)
         window.setVisible(True)
         window.showMaximized()
-        window.showSystemMenu()
         self.ui.mdi.setActiveSubWindow(window)
         return window
 
