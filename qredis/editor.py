@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta
 from functools import partial
 
@@ -209,11 +210,8 @@ class RedisItemEditor(QWidget):
                 if original_item.key:
                     item.redis.rename(original_item.key, item.key)
                     self.__original_item = original_item._replace(key=item.key)
-            except Exception as e:
-                import traceback
-
-                traceback.print_exc()
-                print("error", str(e))
+            except Exception:
+                logging.exception("error on key name applied callback")
             self.__update()
 
     def __on_ttl_changed(self, ttl):
@@ -227,10 +225,8 @@ class RedisItemEditor(QWidget):
             try:
                 item.redis.expire(item.key, item.ttl)
                 self.__original_item = original_item._replace(ttl=item.ttl)
-            except Exception as e:
-                import traceback
-                traceback.print_exc()
-                print("error", str(e))
+            except Exception:
+                logging.exception("error on ttl applied callback")
             self.__update()
 
     def __on_refresh(self):
@@ -248,14 +244,14 @@ class RedisItemEditor(QWidget):
     def __on_persist(self):
         try:
             self.__original_item.redis.persist(self.__item.key)
-        except Exception as e:
-            print("error", str(e))
+        except Exception:
+            logging.exception("error on persist applied callback")
 
     def __on_delete(self):
         try:
             self.__original_item.redis.delete(self.__item.key)
-        except Exception as e:
-            print("error", str(e))
+        except Exception:
+            logging.exception("error on delete applied callback")
 
     def __update(self):
         ui = self.ui
