@@ -6,7 +6,7 @@ def get_readme(name="README.md"):
         return f.read()
 
 
-requirements = ["redis", "PyQt5", "msgpack", "msgpack-numpy"]
+requirements = ["redis", "qtpy", "PyQt5", "msgpack", "msgpack-numpy"]
 
 
 setup(
@@ -29,6 +29,7 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
     ],
     python_requires=">=3.5",
 )
