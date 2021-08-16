@@ -2,11 +2,14 @@ import logging
 from datetime import timedelta
 from functools import partial
 
-from .util import redis_str
-from .qt import (
-    Qt, QWidget, QMainWindow, QLabel, QStackedLayout, QMessageBox,
-    QTableWidgetItem, QTreeWidgetItem, QIntValidator, ui_loadable)
+from qtpy.QtCore import Qt
+from qtpy.QtGui import QIntValidator
+from qtpy.QtWidgets import (
+    QWidget, QMainWindow, QLabel, QStackedLayout, QMessageBox,
+    QTableWidgetItem, QTreeWidgetItem)
 
+from .util import redis_str
+from .qutil import ui_loadable
 
 ModifiedStyle = "background-color: rgb(255,200,200);"
 

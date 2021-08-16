@@ -4,9 +4,10 @@ import collections
 import msgpack
 import msgpack_numpy
 from redis import Redis
+from qtpy.QtCore import QObject, Signal
 
 from .util import KeyItem
-from .qt import QObject, Signal
+
 
 
 def msgpack_pack(data):

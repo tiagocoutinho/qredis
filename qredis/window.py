@@ -1,8 +1,13 @@
 import os
 import logging
 
-from .qt import QMainWindow, QApplication, QIcon, QActionGroup, QMdiArea, Qt, ui_loadable
+from qtpy.QtCore import Qt
+from qtpy.QtGui import QIcon
+from qtpy.QtWidgets import (
+    QMainWindow, QApplication, QActionGroup, QMdiArea
+)
 from .util import restart, redis_str
+from .qutil import ui_loadable
 from .redis import QRedis
 from .panel import RedisPanel
 from .dialog import AboutDialog, OpenRedisDialog
