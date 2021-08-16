@@ -1,5 +1,9 @@
+from qtpy.QtCore import QRegExp
+from qtpy.QtGui import QRegExpValidator
+from qtpy.QtWidgets import QDialog
+
 from .redis import QRedis
-from .qt import QDialog, QRegExpValidator, QRegExp, ui_loadable
+from .qutil import ui_loadable
 
 
 @ui_loadable

@@ -1,4 +1,6 @@
-from .qt import Qt, QSplitter
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QSplitter
+
 from .tree import RedisTree
 from .editor import RedisEditor
 

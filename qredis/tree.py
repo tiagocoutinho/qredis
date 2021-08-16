@@ -2,22 +2,20 @@ import os
 import logging
 import functools
 
-from .qt import (
-    Qt,
+from qtpy.QtCore import (
+    Qt, Signal, QModelIndex, QAbstractItemModel, QSortFilterProxyModel)
+from qtpy.QtGui import QIcon
+from qtpy.QtWidgets import (
     QMainWindow,
     QApplication,
-    QModelIndex,
-    QAbstractItemModel,
-    QSortFilterProxyModel,
     QToolButton,
     QMessageBox,
     QInputDialog,
-    QIcon,
     QMenu,
-    Signal,
-    ui_loadable,
 )
+
 from .util import KeyItem as Item, redis_str
+from .qutil import ui_loadable
 from .redis import QRedis
 
 
