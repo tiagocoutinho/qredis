@@ -6,7 +6,7 @@ def get_readme(name="README.md"):
         return f.read()
 
 
-requirements = ["redis", "PyQt5"]
+requirements = ["redis", "PyQt5", "msgpack", "msgpack-numpy"]
 
 
 setup(
