@@ -11,7 +11,7 @@ requirements = ["redis", "PyQt5", "msgpack", "msgpack-numpy"]
 
 setup(
     name="qredis",
-    version="0.5.0",
+    version="0.5.1",
     description="Qt based Redis GUI",
     long_description=get_readme(),
     long_description_content_type="text/markdown",
