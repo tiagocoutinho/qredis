@@ -39,4 +39,14 @@ $ connect with unix socket, db=5
 $ qredis -s /tmp/redis.sock -n 5
 ```
 
+## Alternatives
+
+* [RESP.app (Formerly RedisDesktopManager)](https://github.com/uglide/RedisDesktopManager)
+* [dbgate](https://github.com/dbgate/dbgate)
+* [RedisInsight](https://github.com/RedisInsight/RedisInsight)
+* [redis-commander](https://github.com/joeferner/redis-commander)
+
+An updated list can be found [here](https://redis.io/docs/tools/#gui)
+
+
 **That's all folks!**
