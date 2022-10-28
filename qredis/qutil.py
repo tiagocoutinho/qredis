@@ -1,25 +1,25 @@
+"""QRedis Qt tools"""
+
 import os
 import sys
+import types
 import functools
 
 from qtpy.QtCore import QPoint
 from qtpy.QtGui import QPainter, QFont, QColor
-from PyQt5.uic import loadUi
+from qtpy.uic import loadUi
 
 
 def add_char_pixmap(pixmap, char, size=14, weight=QFont.Bold):
+    """Draw a black character on the pixmap"""
     if len(char) > 1:
         raise ValueError("Only one char is allowed")
     painter = QPainter(pixmap)
     painter.setFont(QFont("Times", size, weight))
     painter.setPen(QColor(255, 0, 0))
-    w, h = pixmap.width(), pixmap.height()
-    p = QPoint(w - size, h - 2)
-    painter.drawText(p, char)
-
-
-class __UI:
-    pass
+    width, height = pixmap.width(), pixmap.height()
+    point = QPoint(width - size, height - 2)
+    painter.drawText(point, char)
 
 
 def load_ui(obj, filename=None, path=None, with_ui="ui"):
@@ -53,7 +53,7 @@ def load_ui(obj, filename=None, path=None, with_ui="ui"):
     full_name = os.path.join(path, filename)
 
     if with_ui is not None:
-        ui_obj = __UI()
+        ui_obj = types.SimpleNamespace()
         setattr(obj, with_ui, ui_obj)
         previous_members = set(dir(obj))
 
@@ -80,7 +80,8 @@ def ui_loadable(klass=None, with_ui="ui"):
     :file:`<my_widget_dir>/ui/MyWidget.ui` which is a QWidget panel with *at
     least* a QPushButton with objectName *my_button* ::
 
-        from qredis.qt import Qt, ui_loadable
+        from qtpy import Qt
+        from qredis.qutil import ui_loadable
 
         @ui_loadable
         class MyWidget(Qt.QWidget):
@@ -96,7 +97,8 @@ def ui_loadable(klass=None, with_ui="ui"):
 
         import os.path
 
-        from qredis.qt import Qt, ui_loadable
+        from qtpy import Qt
+        from qredis.qutil import ui_loadable
 
         @ui_loadable(with_ui="_ui")
         class MyWidget(Qt.QWidget):
@@ -130,13 +132,14 @@ def ui_loadable(klass=None, with_ui="ui"):
 
 
 if __name__ == "__main__":
-    from .qt import QApplication, QLabel, QIcon
+    from qtpy.QtGui import QIcon
+    from qtpy.QtWidgets import QApplication, QLabel
 
     app = QApplication([])
     i = QIcon.fromTheme("list-add")
-    p = i.pixmap(128, 128)
-    add_char_pixmap(p, "S")
+    pix = i.pixmap(128, 128)
+    add_char_pixmap(pix, "S")
     lbl = QLabel()
-    lbl.setPixmap(p)
+    lbl.setPixmap(pix)
     lbl.show()
     app.exec_()
