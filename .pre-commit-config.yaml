@@ -21,11 +21,11 @@ repos:
     hooks:
     - id: flake8
       stages: [commit]
--   repo: https://github.com/pycqa/pylint
-    rev: v2.15.5
-    hooks:
-    - id: pylint
-      stages: [commit]
+#-   repo: https://github.com/pycqa/pylint
+#    rev: v2.15.5
+#    hooks:
+#    - id: pylint
+#      stages: [commit]
 -   repo: https://github.com/milin/giticket
     rev: v1.4
     hooks:

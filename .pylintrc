@@ -1,2 +1,2 @@
 [MASTER]
-extension-pkg-whitelist=PyQt5,PyQt6,PySide2,PySide6
+extension-pkg-whitelist=qtpy,PyQt5,PyQt6,PySide2,PySide6

@@ -9,7 +9,6 @@ from qtpy.QtCore import QObject, Signal
 from .util import KeyItem
 
 
-
 def msgpack_pack(data):
     return msgpack.packb(data, use_bin_type=True, default=msgpack_numpy.encode)
 
@@ -30,10 +29,12 @@ def decode_msgpack(v):
     return str(msgpack_unpack(v))
 
 
-DECODES = [(decode_utf8, "utf-8"),
-           (decode_pickle, "pickle"),
-           (decode_msgpack, "msgpack"),
-           (str, "raw")]
+DECODES = [
+    (decode_utf8, "utf-8"),
+    (decode_pickle, "pickle"),
+    (decode_msgpack, "msgpack"),
+    (str, "raw"),
+]
 
 
 def decode(value):
@@ -58,6 +59,10 @@ def _set_set(redis, key, st):
     redis.sadd(key, *tuple(st))
 
 
+class zset(list):
+    pass
+
+
 class QRedis(QObject):
 
     keyRenamed = Signal(object, object)
@@ -69,6 +74,7 @@ class QRedis(QObject):
         dict: "hash",
         list: "list",
         set: "set",
+        zset: "zset",
     }
 
     def __init__(self, *args, **kwargs):
@@ -76,7 +82,7 @@ class QRedis(QObject):
             parent, args = args[0], args[1:]
         else:
             parent = kwargs.pop("parent", None)
-        #kwargs.setdefault("decode_responses", True)
+        # kwargs.setdefault("decode_responses", True)
         super(QRedis, self).__init__(parent)
 
         self._get_type_map = {
@@ -85,6 +91,7 @@ class QRedis(QObject):
             "hash": self._hgetall,
             "list": self._lgetall,
             "set": self._sgetall,
+            "zset": self._zgetall,
         }
 
         self._set_type_map = collections.defaultdict(
@@ -125,6 +132,12 @@ class QRedis(QObject):
 
     def _sgetall(self, key):
         return {decode(i) for i in self.redis.smembers(key)}
+
+    def _zgetall(self, key):
+        return {
+            decode(member): decode(score)
+            for member, score in self.redis.zscan_iter(key)
+        }
 
     def get(self, key, default=None):
         if not self.exists(key):

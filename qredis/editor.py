@@ -5,8 +5,14 @@ from functools import partial
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QIntValidator
 from qtpy.QtWidgets import (
-    QWidget, QMainWindow, QLabel, QStackedLayout, QMessageBox,
-    QTableWidgetItem, QTreeWidgetItem)
+    QWidget,
+    QMainWindow,
+    QLabel,
+    QStackedLayout,
+    QMessageBox,
+    QTableWidgetItem,
+    QTreeWidgetItem,
+)
 
 from .util import redis_str
 from .qutil import ui_loadable
@@ -66,7 +72,7 @@ class MultiEditor(QWidget):
 
     def get_item(self):
         table, item = self.ui.table, self.item
-        if item.type == "hash":
+        if item.type in {"hash", "zset"}:
             value = {}
             for row in range(table.rowCount()):
                 value[table.item(row, 0).text()] = table.item(row, 1).text()
@@ -81,15 +87,14 @@ class MultiEditor(QWidget):
         table.clearContents()
         dtype, value = item.type, item.value
         table.setRowCount(len(value))
-        header = ("Key", "Value") if dtype == "hash" else ("Value",)
+        header = ("Key", "Value") if dtype in {"hash", "zset"} else ("Value",)
         table.setColumnCount(len(header))
         table.setHorizontalHeaderLabels(header)
-        keys = value if dtype == "list" else sorted(value)
-        for row, key in enumerate(keys):
+        for row, key in enumerate(value):
             table.setItem(row, 0, QTableWidgetItem(key))
-        if item.type == "hash":
-            for row, key in enumerate(keys):
-                table.setItem(row, 1, QTableWidgetItem(value[key]))
+        if item.type in {"hash", "zset"}:
+            for row, (key, data) in enumerate(value.items()):
+                table.setItem(row, 1, QTableWidgetItem(data))
         self.modified = False
         self.__update()
 
@@ -176,6 +181,7 @@ class RedisItemEditor(QWidget):
             "hash": self.hash_editor,
             "list": self.seq_editor,
             "set": self.set_editor,
+            "zset": self.hash_editor,
         }
         ttl_validator = QIntValidator()
         ttl_validator.setBottom(-1)
@@ -302,9 +308,11 @@ class RedisDbEditor(QMainWindow):
         ui.toolbar.addWidget(self.ui.name_label)
         ui.refresh_action.triggered.connect(self.__on_refresh)
         ui.info_filter.textChanged.connect(
-            partial(self.__on_filter_changed, ui.info_table))
+            partial(self.__on_filter_changed, ui.info_table)
+        )
         ui.config_filter.textChanged.connect(
-            partial(self.__on_filter_changed, ui.config_table))
+            partial(self.__on_filter_changed, ui.config_table)
+        )
         ui.config_table.itemChanged.connect(self.__on_config_changed)
 
     def __on_refresh(self):
@@ -312,9 +320,15 @@ class RedisDbEditor(QMainWindow):
 
     def __on_filter_changed(self, table, text):
         if text:
-            hidden = lambda item: not text in item.text()
+
+            def hidden(item):
+                return text not in item.text()
+
         else:
-            hidden = lambda item: False
+
+            def hidden(item):
+                return False
+
         for row in range(table.rowCount()):
             item = table.item(row, 0)
             table.setRowHidden(row, hidden(item))
@@ -324,8 +338,10 @@ class RedisDbEditor(QMainWindow):
         key = table.item(item.row(), 0).text()
         value = item.text()
         result = QMessageBox.question(
-            self, "Are you sure?",
-            "Are you sure you want to change the value of {} to {}?".format(key, value))
+            self,
+            "Are you sure?",
+            "Are you sure you want to change the value of {} to {}?".format(key, value),
+        )
         if result != QMessageBox.Yes:
             return
         try:
@@ -368,7 +384,7 @@ class RedisDbEditor(QMainWindow):
             c0 = QTableWidgetItem(key)
             c0.setFlags(c0.flags() & (~Qt.ItemIsEditable))
             c1 = QTableWidgetItem(str(config[key]))
-            c1.setFlags(c0.flags() |Qt.ItemIsEditable)
+            c1.setFlags(c0.flags() | Qt.ItemIsEditable)
             config_table.setItem(row, 0, c0)
             config_table.setItem(row, 1, c1)
         config_table.blockSignals(False)
