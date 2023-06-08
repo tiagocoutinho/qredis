@@ -1,6 +1,7 @@
 import logging
 from datetime import timedelta
 from functools import partial
+from collections import OrderedDict
 
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QIntValidator
@@ -167,6 +168,7 @@ class RedisItemEditor(QWidget):
         self.simple_editor = SimpleEditor()
         self.hash_editor = MultiEditor()
         self.seq_editor = MultiEditor()
+        self.stream_viewer = StreamViewer()
         self.seq_editor.ui.table.horizontalHeader().setVisible(False)
         self.set_editor = MultiEditor()
         self.set_editor.ui.table.horizontalHeader().setVisible(False)
@@ -175,6 +177,7 @@ class RedisItemEditor(QWidget):
         layout.addWidget(self.hash_editor)
         layout.addWidget(self.seq_editor)
         layout.addWidget(self.set_editor)
+        layout.addWidget(self.stream_viewer)
         self.type_editor_map = {
             "none": self.none_editor,
             "string": self.simple_editor,
@@ -182,6 +185,7 @@ class RedisItemEditor(QWidget):
             "list": self.seq_editor,
             "set": self.set_editor,
             "zset": self.hash_editor,
+            "stream": self.stream_viewer,
         }
         ttl_validator = QIntValidator()
         ttl_validator.setBottom(-1)
@@ -196,6 +200,13 @@ class RedisItemEditor(QWidget):
         ui.undo_button.clicked.connect(self.__on_undo)
         ui.persist_button.clicked.connect(self.__on_persist)
         ui.delete_button.clicked.connect(self.__on_delete)
+
+    def __enabled_buttons(self, enabled=True):
+        self.ui.apply_button.setEnabled(enabled)
+        self.ui.undo_button.setEnabled(enabled)
+        self.ui.persist_button.setEnabled(enabled)
+        self.ui.delete_button.setEnabled(enabled)
+        self.ui.touch_button.setEnabled(enabled)
 
     def __on_apply(self):
         editor = self.ui.type_editor.layout().currentWidget()
@@ -296,6 +307,10 @@ class RedisItemEditor(QWidget):
             return
         self.ui.key_name.setText(item.key)
         self.ui.ttl_value.setText(str(ttl) if ttl > 0 else "")
+        if item.type == 'stream':
+            self.__enabled_buttons(False)
+        else:
+            self.__enabled_buttons(True)
 
 
 @ui_loadable
@@ -401,6 +416,47 @@ class RedisDbEditor(QMainWindow):
                 QTreeWidgetItem(item, [key, str(value)])
 
 
+@ui_loadable()
+class StreamViewer(QWidget):
+    def __init__(self, parent=None):
+        super(StreamViewer, self).__init__(parent)
+        self.load_ui()
+        self.modified = False
+        self.item = None
+        self._events = None
+        header = ("Key", "Value")
+        self.ui.table.setColumnCount(len(header))
+        self.ui.table.setHorizontalHeaderLabels(header)
+        self.ui.list.itemSelectionChanged.connect(self.select_item)
+
+    def select_item(self):
+        items = self.ui.list.selectedItems()
+        self.ui.table.clearContents()
+        if not items:
+            return
+        item = items[0]
+        data = self._events[item.text()]
+        self.ui.table.setRowCount(len(data))
+        for row, (key, value) in enumerate(data.items()):
+            self.ui.table.setItem(row, 0, QTableWidgetItem(key))
+            self.ui.table.setItem(row, 1, QTableWidgetItem(value))
+        self.ui.table.resizeColumnsToContents()
+
+    def get_item(self):
+        return self.item
+
+    def set_item(self, item):
+        self.item = item
+        self.ui.list.clear()
+        self.ui.table.clearContents()
+        self._events = OrderedDict()
+
+        for event in item.value:
+            self._events[event[0]] = event[1]
+            self.ui.list.addItem(event[0])
+        self.ui.list.setCurrentRow(0)
+
+
 class RedisEditor(QWidget):
     def __init__(self, parent=None):
         super(RedisEditor, self).__init__(parent)
@@ -423,3 +479,4 @@ class RedisEditor(QWidget):
     def set_db(self, redis):
         self.layout().setCurrentWidget(self.db)
         self.db.set_db(redis)
+        
