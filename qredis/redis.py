@@ -63,6 +63,10 @@ class zset(list):
     pass
 
 
+class stream(tuple):
+    pass
+
+
 class QRedis(QObject):
 
     keyRenamed = Signal(object, object)
@@ -75,6 +79,7 @@ class QRedis(QObject):
         list: "list",
         set: "set",
         zset: "zset",
+        stream: "stream"
     }
 
     def __init__(self, *args, **kwargs):
@@ -92,6 +97,7 @@ class QRedis(QObject):
             "list": self._lgetall,
             "set": self._sgetall,
             "zset": self._zgetall,
+            "stream": self._xrange,
         }
 
         self._set_type_map = collections.defaultdict(
@@ -116,6 +122,7 @@ class QRedis(QObject):
         return value
 
     def __setitem__(self, key, value):
+
         self._set_type_map[type(value)](self, key, value)
 
     def __delitem__(self, key):
@@ -139,6 +146,18 @@ class QRedis(QObject):
             for member, score in self.redis.zscan_iter(key)
         }
 
+    def _xrange(self, key):
+        data = []
+        for i in self.redis.xrange(key):
+            event_time, event_data_raw = i
+            event_time = decode(event_time)
+            event_data = {
+                decode(member): decode(score)
+                for member, score in event_data_raw.items()
+            }
+            data.append((event_time, event_data))
+        return data
+    
     def get(self, key, default=None):
         if not self.exists(key):
             return default
