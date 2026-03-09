@@ -122,8 +122,7 @@ class QRedis(QObject):
         return value
 
     def __setitem__(self, key, value):
-
-        self._set_type_map[type(value)](self, key, value)
+        self._set_type_map[type(value)](key, value)
 
     def __delitem__(self, key):
         self.delete(key)
