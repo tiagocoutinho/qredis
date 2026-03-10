@@ -307,6 +307,7 @@ class RedisItemEditor(QWidget):
             return
         self.ui.key_name.setText(item.key)
         self.ui.ttl_value.setText(str(ttl) if ttl > 0 else "")
+        self.ui.type_label_value.setText(item.type)
         if item.type == 'stream':
             self.__enabled_buttons(False)
         else:
